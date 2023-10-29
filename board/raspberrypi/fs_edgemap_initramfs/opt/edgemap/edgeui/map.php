@@ -653,7 +653,8 @@
             }, 10000);
         } // if(0)
 	
-	/* Satellite layers */
+	/* Satellite layers, let's put these in style */
+    /*
 	map.addLayer(
 		{
 			id: "satellite",
@@ -681,7 +682,7 @@
 			type: "raster",
 			source: "lowerhitch"
 		},
-	);
+	);*/
 
 	/* Zoom value update */
 	map.on('zoom', function () {

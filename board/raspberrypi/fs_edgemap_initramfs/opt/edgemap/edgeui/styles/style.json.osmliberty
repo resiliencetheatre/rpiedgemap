@@ -27,18 +27,16 @@
       "type": "vector",
       "url": "/data/v3.json"
     },
-            "terrainSource": {
-              "type": "raster-dem",
-              "url": "local://./edgeui/tiles.json",
-              "tileSize": 256
-            },
-	    "hillshadeSource": {
-              "type": "raster-dem",
-              "url": "local://./edgeui/tiles.json",
-              "tileSize": 256
-            }
-
-
+    "terrainSource": {
+      "type": "raster-dem",
+      "url": "local://./edgeui/tiles.json",
+      "tileSize": 256
+    },
+    "hillshadeSource": {
+      "type": "raster-dem",
+      "url": "local://./edgeui/tiles.json",
+      "tileSize": 256
+    }
   },
   "sprite": "local://./edgeui/sprites/osm-liberty",
   "glyphs": "local://./edgeui/fonts/{fontstack}/{range}.pbf",
@@ -48,14 +46,34 @@
       "type": "background",
       "paint": {"background-color": "rgb(239,239,239)"}
     },
+    {
+        "id": "kyiv",
+        "type": "raster",
+        "source": "kyiv"
+    },
+    {
+        "id": "lowerhitch",
+        "type": "raster",
+        "source": "lowerhitch"
+    },
+    {
+        "id": "moga",
+        "type": "raster",
+        "source": "moga"
+    },
+    {
+        "id": "saakow",
+        "type": "raster",
+        "source": "saakow"
+    },
 
-	    {
-              "id": "hills",
-              "type": "hillshade",
-              "source": "hillshadeSource",
-              "layout": { "visibility": "visible" },
-              "paint": { "hillshade-shadow-color": "#473B24" }
-            },
+    {
+      "id": "hills",
+      "type": "hillshade",
+      "source": "hillshadeSource",
+      "layout": { "visibility": "visible" },
+      "paint": { "hillshade-shadow-color": "#473B24" }
+    },
 
     {
       "id": "park",
