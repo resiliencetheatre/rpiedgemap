@@ -1,5 +1,7 @@
 /dev/root / auto rw 0 1
-# MicroSD
-# /dev/mmcblk0p3 /mnt auto ro,defaults,x-systemd.automount,x-systemd.device-timeout=5,noatime,noauto 0 2
+# MicroSD 'data' -> /opt/data
+/dev/mapper/encrypted_data /opt/data auto defaults,x-systemd.automount,x-systemd.device-timeout=5,noatime,noauto 0 2
+# MicroSD 'maps' -> /mnt
+/dev/mapper/encrypted_maps /mnt auto ro,defaults,x-systemd.automount,x-systemd.device-timeout=5,noatime,noauto 0 2
 # External USB drive
-/dev/sda1 /mnt auto ro,defaults,x-systemd.automount,x-systemd.device-timeout=5,noatime,noauto 0 2
+# /dev/sda1 /mnt auto ro,defaults,x-systemd.automount,x-systemd.device-timeout=5,noatime,noauto 0 2

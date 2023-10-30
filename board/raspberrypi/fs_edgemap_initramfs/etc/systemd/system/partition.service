@@ -7,6 +7,6 @@ Type=oneshot
 RemainAfterExit=true   
 ExecStart=sh -c /bin/create-partition.sh
 
-[Install]
-WantedBy=multi-user.target
+# [Install]
+# WantedBy=multi-user.target
 
