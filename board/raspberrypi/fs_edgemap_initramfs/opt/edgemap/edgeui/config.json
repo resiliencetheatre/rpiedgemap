@@ -1,0 +1,41 @@
+{
+  "options": {
+    "paths": {
+      "root": "/opt/edgemap/edgeui",
+      "fonts": "fonts",
+      "styles": "styles",
+      "mbtiles": ""
+    }
+  },
+  "styles": {
+    "osm-liberty": {
+      "style": "style.json.osmliberty",
+      "tilejson": {
+        "bounds": [
+          -180,
+          -90,
+          180,
+          85.06
+        ]
+      }
+    }
+  },
+  "data": {
+    "v3": {
+      "mbtiles": "planet.mbtiles"
+    },
+    "lowerhitch_sat": {
+      "mbtiles": "lowerhitch_sat.mbtiles"
+    },
+    "mogadishu_sat": {
+      "mbtiles": "mogadishu_sat.mbtiles"
+    },
+    "kyiv_sat": {
+      "mbtiles": "kyiv_sat.mbtiles"
+    },
+    "saakow_sat": {
+      "mbtiles": "saakow_sat.mbtiles"
+    }
+
+  }
+}

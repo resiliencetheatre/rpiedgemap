@@ -1,0 +1,5 @@
+config BR2_PACKAGE_LIBFIDO2
+	bool "libfido2"
+	help
+	 libfido2 library
+
