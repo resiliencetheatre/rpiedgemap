@@ -1,6 +1,6 @@
 # rpi-edgemap (initramfs)
 
-External tree for [buildroot](https://buildroot.org) to build RaspberryPi4 based Edgemap firmware image. 
+External tree for [buildroot](https://buildroot.org) to build RaspberryPi4 based [Edgemap](https://resilience-theatre.com/edgemap/) firmware image. 
 
 ## Features
 
