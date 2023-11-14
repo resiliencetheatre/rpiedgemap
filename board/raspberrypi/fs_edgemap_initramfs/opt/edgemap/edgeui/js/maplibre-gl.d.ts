@@ -2241,16 +2241,56 @@ export declare class TileCache {
 	 */
 	filter(filterFn: (tile: Tile) => boolean): void;
 }
-export type SerializedObject<S extends Serialized = any> = {
-	[_: string]: S;
-};
-export type Serialized = null | void | boolean | number | string | Boolean | Number | String | Date | RegExp | ArrayBuffer | ArrayBufferView | ImageData | ImageBitmap | Blob | Array<Serialized> | SerializedObject;
 export declare class ThrottledInvoker {
 	_channel: MessageChannel;
 	_triggered: boolean;
 	_callback: Function;
 	constructor(callback: Function);
 	trigger(): void;
+	remove(): void;
+}
+export declare class Actor {
+	target: any;
+	parent: any;
+	mapId: string | null;
+	callbacks: {
+		number: any;
+	};
+	name: string;
+	tasks: {
+		number: any;
+	};
+	taskQueue: Array<number>;
+	cancelCallbacks: {
+		number: Cancelable;
+	};
+	invoker: ThrottledInvoker;
+	globalScope: any;
+	/**
+	 * @param target - The target
+	 * @param parent - The parent
+	 * @param mapId - A unique identifier for the Map instance using this Actor.
+	 */
+	constructor(target: any, parent: any, mapId?: string);
+	/**
+	 * Sends a message from a main-thread map to a Worker or from a Worker back to
+	 * a main-thread map instance.
+	 *
+	 * @param type - The name of the target method to invoke or '[source-type].[source-name].name' for a method on a WorkerSource.
+	 * @param targetMapId - A particular mapId to which to send this message.
+	 */
+	send(type: string, data: unknown, callback?: Function | null, targetMapId?: string | null, mustQueue?: boolean): Cancelable;
+	receive: (message: {
+		data: {
+			id: number;
+			type: string;
+			data: unknown;
+			targetMapId?: string | null;
+			mustQueue: boolean;
+		};
+	}) => void;
+	process: () => void;
+	processTask(id: number, task: any): void;
 	remove(): void;
 }
 export type DEMEncoding = "mapbox" | "terrarium" | "custom";
@@ -2273,22 +2313,6 @@ export declare class DEMData {
 	getPixels(): RGBAImage;
 	backfillBorder(borderTile: DEMData, dx: number, dy: number): void;
 }
-export type TileParameters = {
-	source: string;
-	uid: string;
-};
-export type WorkerTileParameters = TileParameters & {
-	tileID: OverscaledTileID;
-	request: RequestParameters;
-	zoom: number;
-	maxZoom: number;
-	tileSize: number;
-	promoteId: PromoteIdSpecification;
-	pixelRatio: number;
-	showCollisionBoxes: boolean;
-	collectResourceTiming?: boolean;
-	returnDependencies?: boolean;
-};
 /**
  * @internal
  * The worker tile's result type
@@ -2311,127 +2335,24 @@ export type WorkerTileResult = {
 	} | null;
 	glyphPositions?: GlyphPositions | null;
 };
-export type WorkerTileCallback = (error?: Error | null, result?: WorkerTileResult | null) => void;
-/**
- * May be implemented by custom source types to provide code that can be run on
- * the WebWorkers. In addition to providing a custom
- * {@link WorkerSource#loadTile}, any other methods attached to a `WorkerSource`
- * implementation may also be targeted by the {@link Source} via
- * `dispatcher.getActor().send('source-type.methodname', params, callback)`.
- *
- * @see {@link Map#addSourceType}
- */
-export interface WorkerSource {
-	availableImages: Array<string>;
-	/**
-	 * Loads a tile from the given params and parse it into buckets ready to send
-	 * back to the main thread for rendering.  Should call the callback with:
-	 * `{ buckets, featureIndex, collisionIndex, rawTileData}`.
-	 */
-	loadTile(params: WorkerTileParameters, callback: WorkerTileCallback): void;
-	/**
-	 * Re-parses a tile that has already been loaded.  Yields the same data as
-	 * {@link WorkerSource#loadTile}.
-	 */
-	reloadTile(params: WorkerTileParameters, callback: WorkerTileCallback): void;
-	/**
-	 * Aborts loading a tile that is in progress.
-	 */
-	abortTile(params: TileParameters, callback: WorkerTileCallback): void;
-	/**
-	 * Removes this tile from any local caches.
-	 */
-	removeTile(params: TileParameters, callback: WorkerTileCallback): void;
-	/**
-	 * Tells the WorkerSource to abort in-progress tasks and release resources.
-	 * The foreground Source is responsible for ensuring that 'removeSource' is
-	 * the last message sent to the WorkerSource.
-	 */
-	removeSource?: (params: {
-		source: string;
-	}, callback: WorkerTileCallback) => void;
-}
-export interface ActorTarget {
-	addEventListener: typeof window.addEventListener;
-	removeEventListener: typeof window.removeEventListener;
-	postMessage: typeof window.postMessage;
-	terminate?: () => void;
-}
-export interface WorkerSourceProvider {
-	getWorkerSource(mapId: string | number, sourceType: string, sourceName: string): WorkerSource;
-}
-export interface GlyphsProvider {
-	getGlyphs(mapId: string, params: {
-		stacks: {
-			[_: string]: Array<number>;
-		};
-		source: string;
-		tileID: OverscaledTileID;
-		type: string;
-	}, callback: Callback<{
-		[_: string]: {
-			[_: number]: StyleGlyph;
-		};
-	}>): any;
-}
-export type MessageType = "<response>" | "<cancel>" | "geojson.getClusterExpansionZoom" | "geojson.getClusterChildren" | "geojson.getClusterLeaves" | "geojson.loadData" | "removeSource" | "loadWorkerSource" | "loadDEMTile" | "removeDEMTile" | "removeTile" | "reloadTile" | "abortTile" | "loadTile" | "getTile" | "getGlyphs" | "getImages" | "setImages" | "syncRTLPluginState" | "setReferrer" | "setLayers" | "updateLayers";
-export type MessageData = {
-	id: string;
-	type: MessageType;
-	data?: Serialized;
-	targetMapId?: string | number | null;
-	mustQueue?: boolean;
-	error?: Serialized | null;
-	hasCallback?: boolean;
-	sourceMapId: string | number | null;
-};
-export type Message = {
-	data: MessageData;
-};
-export declare class Actor {
-	target: ActorTarget;
-	parent: WorkerSourceProvider | GlyphsProvider;
-	mapId: string | number | null;
-	callbacks: {
-		[x: number]: Function;
-	};
-	name: string;
-	tasks: {
-		[x: number]: MessageData;
-	};
-	taskQueue: Array<string>;
-	cancelCallbacks: {
-		[x: number]: () => void;
-	};
-	invoker: ThrottledInvoker;
-	globalScope: ActorTarget;
-	/**
-	 * @param target - The target
-	 * @param parent - The parent
-	 * @param mapId - A unique identifier for the Map instance using this Actor.
-	 */
-	constructor(target: ActorTarget, parent: WorkerSourceProvider | GlyphsProvider, mapId?: string | number);
-	/**
-	 * Sends a message from a main-thread map to a Worker or from a Worker back to
-	 * a main-thread map instance.
-	 *
-	 * @param type - The name of the target method to invoke or '[source-type].[source-name].name' for a method on a WorkerSource.
-	 * @param targetMapId - A particular mapId to which to send this message.
-	 */
-	send(type: MessageType, data: unknown, callback?: Function | null, targetMapId?: string | null, mustQueue?: boolean): Cancelable;
-	receive: (message: Message) => void;
-	process: () => void;
-	processTask(id: string, task: MessageData): void;
-	remove(): void;
+export type MessageListener = (a: {
+	data: any;
+	target: any;
+}) => unknown;
+export interface WorkerInterface {
+	addEventListener(type: "message", listener: MessageListener): void;
+	removeEventListener(type: "message", listener: MessageListener): void;
+	postMessage(message: any): void;
+	terminate(): void;
 }
 export declare class WorkerPool {
 	static workerCount: number;
 	active: {
 		[_ in number | string]: boolean;
 	};
-	workers: Array<ActorTarget>;
+	workers: Array<WorkerInterface>;
 	constructor();
-	acquire(mapId: number | string): Array<ActorTarget>;
+	acquire(mapId: number | string): Array<WorkerInterface>;
 	release(mapId: number | string): void;
 	isPreloaded(): boolean;
 	numActive(): number;
@@ -2440,12 +2361,15 @@ export declare class Dispatcher {
 	workerPool: WorkerPool;
 	actors: Array<Actor>;
 	currentActor: number;
-	id: string | number;
-	constructor(workerPool: WorkerPool, parent: GlyphsProvider, mapId: string | number);
+	id: number;
+	static Actor: {
+		new (...args: any): Actor;
+	};
+	constructor(workerPool: WorkerPool, parent: any, mapId: number);
 	/**
 	 * Broadcast a message to all Workers.
 	 */
-	broadcast(type: MessageType, data: unknown, cb?: (...args: any[]) => any): void;
+	broadcast(type: string, data: unknown, cb?: (...args: any[]) => any): void;
 	/**
 	 * Acquires an actor to dispatch messages to. The actors are distributed in round-robin fashion.
 	 * @returns An actor object backed by a web worker for processing messages.
@@ -3094,7 +3018,7 @@ export type SymbolFeature = {
 	sourceLayerIndex: number;
 	geometry: Array<Array<Point>>;
 	properties: any;
-	type: "Unknown" | "Point" | "LineString" | "Polygon";
+	type: "Point" | "LineString" | "Polygon";
 	id?: any;
 };
 export type SortKeyRange = {
@@ -4872,7 +4796,7 @@ export type BucketFeature = {
 	sourceLayerIndex: number;
 	geometry: Array<Array<Point>>;
 	properties: any;
-	type: 0 | 1 | 2 | 3;
+	type: 1 | 2 | 3;
 	id?: any;
 	readonly patterns: {
 		[_: string]: {

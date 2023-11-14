@@ -1,12 +1,14 @@
-# rpi-edgemap (initramfs)
+# rpi-edgemap (initramfs, pmtiles)
 
 External tree for [buildroot](https://buildroot.org) to build RaspberryPi4 based Edgemap firmware image. 
 
 ## Features
 
-This is second generation Edgemap image for [Raspberry Pi4](https://en.wikipedia.org/wiki/Raspberry_Pi). 
-Implementation uses [maplibre-gl-js](https://github.com/maplibre/maplibre-gl-js) library to
-render maps and [maptiler-gl-light](https://github.com/maptiler/tileserver-gl) to serve them.
+This branch contains edgeUI for browser based mapping with [Protomaps](https://protomaps.com/). 
+
+Branch is stripped down version of [Edgemap](https://resilience-theatre.com/edgemap/) firmware image for
+[Raspberry Pi4](https://en.wikipedia.org/wiki/Raspberry_Pi) and does not need tileserver-gl to serve 
+mbtiles. All maps are pmtiles handled by [maplibre-gl-js](https://github.com/maplibre/maplibre-gl-js) library.
 
 Image contains [taky](https://github.com/tkuester/taky) a simple [COT](https://www.mitre.org/sites/default/files/pdf/09_4937.pdf) server 
 for [ATAK](https://tak.gov/products). CoT server is mainly targeted to read CoT targets in network and illustrate them on Web user interface.
@@ -23,7 +25,7 @@ key plugged in to USB port and after unit is booted (and LUKS partitions are ope
 
 Browser usable user interface allows wide range of end user devices (EUD's) without any additional software installs. 
 
-This version does not have target simulations active, but they are present in system and UI component. 
+This version does NOT have high rate target, simulations, CoT reading and [AN/PRC-169](https://silvustechnologies.com/) support.
 
 ## Building
 
@@ -88,13 +90,12 @@ Use 'dd' to copy this image to your MicroSD card.
 
 After you initial boot completes insert your FIDO2 key and run `create-partition.sh` script to partition remaining space on your MicroSD card. 
 
+Place pmtiles to your MicroSD third partition and link them under /opt/edgemap/edgeui/ on running instance. Modify also styles/style.json to 
+match amount of sources avaialable. 
+
 ## Map data
 
-You need to have mbtiles and terrain data to make this image fully working.
-
-You can create planet.mbtiles from OSM dataset and obtain terrain data from publicly available sources. 
-My planet.mbtiles is ~90 GB and if you like to have copy of it, feel free to send me at least 128 GB USB drive and return 
-envelope. You can ping me at re_theatre@5222.de with your XMPP client or drop email to info(a)resilience-theatre.com.
+You need to have full [planet OSM](https://maps.protomaps.com/builds/) pmtiles and A global terrain RGB dataset from [Mapzen Joerd](https://github.com/tilezen/joerd) project.
 
 
 

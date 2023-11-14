@@ -1,4 +1,4 @@
-/* MapLibre GL JS is licensed under the 3-Clause BSD License. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v3.5.2/LICENSE.txt */
+/* MapLibre GL JS is licensed under the 3-Clause BSD License. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v3.5.0/LICENSE.txt */
 (function (global, factory) {
 typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 typeof define === 'function' && define.amd ? define(factory) :
@@ -29,377 +29,6 @@ function define(_, chunk) {
 
 
 define(['exports'], (function (exports) { 'use strict';
-
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global Reflect, Promise, SuppressedError, Symbol */
-
-var extendStatics = function(d, b) {
-    extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-    return extendStatics(d, b);
-};
-
-function __extends(d, b) {
-    if (typeof b !== "function" && b !== null)
-        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-    extendStatics(d, b);
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
-
-var __assign = function() {
-    __assign = Object.assign || function __assign(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-
-function __rest(s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-}
-
-function __decorate(decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-}
-
-function __param(paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-}
-
-function __esDecorate(ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
-    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-    var _, done = false;
-    for (var i = decorators.length - 1; i >= 0; i--) {
-        var context = {};
-        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
-        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
-        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
-        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
-        if (kind === "accessor") {
-            if (result === void 0) continue;
-            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-            if (_ = accept(result.get)) descriptor.get = _;
-            if (_ = accept(result.set)) descriptor.set = _;
-            if (_ = accept(result.init)) initializers.unshift(_);
-        }
-        else if (_ = accept(result)) {
-            if (kind === "field") initializers.unshift(_);
-            else descriptor[key] = _;
-        }
-    }
-    if (target) Object.defineProperty(target, contextIn.name, descriptor);
-    done = true;
-};
-
-function __runInitializers(thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
-
-function __propKey(x) {
-    return typeof x === "symbol" ? x : "".concat(x);
-};
-
-function __setFunctionName(f, name, prefix) {
-    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-    return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
-};
-
-function __metadata(metadataKey, metadataValue) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
-}
-
-function __awaiter(thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-}
-
-function __generator(thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-}
-
-var __createBinding = Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-        desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-});
-
-function __exportStar(m, o) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
-}
-
-function __values(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-}
-
-function __read(o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-}
-
-/** @deprecated */
-function __spread() {
-    for (var ar = [], i = 0; i < arguments.length; i++)
-        ar = ar.concat(__read(arguments[i]));
-    return ar;
-}
-
-/** @deprecated */
-function __spreadArrays() {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
-}
-
-function __spreadArray(to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-}
-
-function __await(v) {
-    return this instanceof __await ? (this.v = v, this) : new __await(v);
-}
-
-function __asyncGenerator(thisArg, _arguments, generator) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var g = generator.apply(thisArg, _arguments || []), i, q = [];
-    return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
-    function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
-    function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
-    function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
-    function fulfill(value) { resume("next", value); }
-    function reject(value) { resume("throw", value); }
-    function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
-}
-
-function __asyncDelegator(o) {
-    var i, p;
-    return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
-    function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: false } : f ? f(v) : v; } : f; }
-}
-
-function __asyncValues(o) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var m = o[Symbol.asyncIterator], i;
-    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-}
-
-function __makeTemplateObject(cooked, raw) {
-    if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
-    return cooked;
-};
-
-var __setModuleDefault = Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-};
-
-function __importStar(mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-}
-
-function __importDefault(mod) {
-    return (mod && mod.__esModule) ? mod : { default: mod };
-}
-
-function __classPrivateFieldGet(receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-}
-
-function __classPrivateFieldSet(receiver, state, value, kind, f) {
-    if (kind === "m") throw new TypeError("Private method is not writable");
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
-}
-
-function __classPrivateFieldIn(state, receiver) {
-    if (receiver === null || (typeof receiver !== "object" && typeof receiver !== "function")) throw new TypeError("Cannot use 'in' operator on non-object");
-    return typeof state === "function" ? receiver === state : state.has(receiver);
-}
-
-function __addDisposableResource(env, value, async) {
-    if (value !== null && value !== void 0) {
-        if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
-        if (async) {
-            if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
-            dispose = value[Symbol.asyncDispose];
-        }
-        if (dispose === void 0) {
-            if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
-            dispose = value[Symbol.dispose];
-        }
-        if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
-        env.stack.push({ value: value, dispose: dispose, async: async });
-    }
-    else if (async) {
-        env.stack.push({ async: true });
-    }
-    return value;
-}
-
-var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
-    var e = new Error(message);
-    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
-};
-
-function __disposeResources(env) {
-    function fail(e) {
-        env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
-        env.hasError = true;
-    }
-    function next() {
-        while (env.stack.length) {
-            var rec = env.stack.pop();
-            try {
-                var result = rec.dispose && rec.dispose.call(rec.value);
-                if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
-            }
-            catch (e) {
-                fail(e);
-            }
-        }
-        if (env.hasError) throw env.error;
-    }
-    return next();
-}
-
-var tslib_es6 = {
-    __extends: __extends,
-    __assign: __assign,
-    __rest: __rest,
-    __decorate: __decorate,
-    __param: __param,
-    __metadata: __metadata,
-    __awaiter: __awaiter,
-    __generator: __generator,
-    __createBinding: __createBinding,
-    __exportStar: __exportStar,
-    __values: __values,
-    __read: __read,
-    __spread: __spread,
-    __spreadArrays: __spreadArrays,
-    __spreadArray: __spreadArray,
-    __await: __await,
-    __asyncGenerator: __asyncGenerator,
-    __asyncDelegator: __asyncDelegator,
-    __asyncValues: __asyncValues,
-    __makeTemplateObject: __makeTemplateObject,
-    __importStar: __importStar,
-    __importDefault: __importDefault,
-    __classPrivateFieldGet: __classPrivateFieldGet,
-    __classPrivateFieldSet: __classPrivateFieldSet,
-    __classPrivateFieldIn: __classPrivateFieldIn,
-    __addDisposableResource: __addDisposableResource,
-    __disposeResources: __disposeResources,
-};
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -1408,33 +1037,31 @@ function computeVideoFrameParameters(image, x, y, width, height) {
  * @param height - height of the rectangle to read from the image
  * @returns a promise containing the parsed RGBA pixel values of the image, or the error if an error occurred
  */
-function readImageUsingVideoFrame(image, x, y, width, height) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (typeof VideoFrame === 'undefined') {
-            throw new Error('VideoFrame not supported');
+async function readImageUsingVideoFrame(image, x, y, width, height) {
+    if (typeof VideoFrame === 'undefined') {
+        throw new Error('VideoFrame not supported');
+    }
+    const frame = new VideoFrame(image, { timestamp: 0 });
+    try {
+        const format = frame === null || frame === void 0 ? void 0 : frame.format;
+        if (!format || !(format.startsWith('BGR') || format.startsWith('RGB'))) {
+            throw new Error(`Unrecognized format ${format}`);
         }
-        const frame = new VideoFrame(image, { timestamp: 0 });
-        try {
-            const format = frame === null || frame === void 0 ? void 0 : frame.format;
-            if (!format || !(format.startsWith('BGR') || format.startsWith('RGB'))) {
-                throw new Error(`Unrecognized format ${format}`);
+        const swapBR = format.startsWith('BGR');
+        const result = new Uint8ClampedArray(width * height * 4);
+        await frame.copyTo(result, computeVideoFrameParameters(image, x, y, width, height));
+        if (swapBR) {
+            for (let i = 0; i < result.length; i += 4) {
+                const tmp = result[i];
+                result[i] = result[i + 2];
+                result[i + 2] = tmp;
             }
-            const swapBR = format.startsWith('BGR');
-            const result = new Uint8ClampedArray(width * height * 4);
-            yield frame.copyTo(result, computeVideoFrameParameters(image, x, y, width, height));
-            if (swapBR) {
-                for (let i = 0; i < result.length; i += 4) {
-                    const tmp = result[i];
-                    result[i] = result[i + 2];
-                    result[i + 2] = tmp;
-                }
-            }
-            return result;
         }
-        finally {
-            frame.close();
-        }
-    });
+        return result;
+    }
+    finally {
+        frame.close();
+    }
 }
 let offscreenCanvas;
 let offscreenCanvasContext;
@@ -1475,18 +1102,16 @@ function readImageDataUsingOffscreenCanvas(imgBitmap, x, y, width, height) {
  * @param height - height of the rectangle to read from the image
  * @returns a promise containing the parsed RGBA pixel values of the image
  */
-function getImageData(image, x, y, width, height) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (isOffscreenCanvasDistorted()) {
-            try {
-                return yield readImageUsingVideoFrame(image, x, y, width, height);
-            }
-            catch (e) {
-                // fall back to OffscreenCanvas
-            }
+async function getImageData(image, x, y, width, height) {
+    if (isOffscreenCanvasDistorted()) {
+        try {
+            return await readImageUsingVideoFrame(image, x, y, width, height);
         }
-        return readImageDataUsingOffscreenCanvas(image, x, y, width, height);
-    });
+        catch (e) {
+            // fall back to OffscreenCanvas
+        }
+    }
+    return readImageDataUsingOffscreenCanvas(image, x, y, width, height);
 }
 
 const now = typeof performance !== 'undefined' && performance && performance.now ?
@@ -11866,6 +11491,7 @@ function serialize(input, transferables) {
             klass.serialize(input, transferables) : {};
         if (!klass.serialize) {
             for (const key in input) {
+                // any cast due to https://github.com/facebook/flow/issues/5393
                 if (!input.hasOwnProperty(key))
                     continue; // eslint-disable-line no-prototype-builtins
                 if (registry[name].omit.indexOf(key) >= 0)
@@ -29179,8 +28805,8 @@ class Actor {
         if (callback) {
             this.callbacks[id] = callback;
         }
-        const buffers = [];
-        const message = {
+        const buffers = isSafari(this.globalScope) ? undefined : [];
+        this.target.postMessage({
             id,
             type,
             hasCallback: !!callback,
@@ -29188,21 +28814,19 @@ class Actor {
             mustQueue,
             sourceMapId: this.mapId,
             data: serialize(data, buffers)
-        };
-        this.target.postMessage(message, { transfer: buffers });
+        }, buffers);
         return {
             cancel: () => {
                 if (callback) {
                     // Set the callback to null so that it never fires after the request is aborted.
                     delete this.callbacks[id];
                 }
-                const cancelMessage = {
+                this.target.postMessage({
                     id,
                     type: '<cancel>',
                     targetMapId,
                     sourceMapId: this.mapId
-                };
-                this.target.postMessage(cancelMessage);
+                });
             }
         };
     }
@@ -29224,18 +28848,17 @@ class Actor {
         }
         else {
             let completed = false;
-            const buffers = [];
+            const buffers = isSafari(this.globalScope) ? undefined : [];
             const done = task.hasCallback ? (err, data) => {
                 completed = true;
                 delete this.cancelCallbacks[id];
-                const responseMessage = {
+                this.target.postMessage({
                     id,
                     type: '<response>',
                     sourceMapId: this.mapId,
                     error: err ? serialize(err) : null,
                     data: serialize(data, buffers)
-                };
-                this.target.postMessage(responseMessage, { transfer: buffers });
+                }, buffers);
             } : (_) => {
                 completed = true;
             };
@@ -29245,7 +28868,7 @@ class Actor {
                 // task.type == 'loadTile', 'removeTile', etc.
                 callback = this.parent[task.type](task.sourceMapId, params, done);
             }
-            else if ('getWorkerSource' in this.parent) {
+            else if (this.parent.getWorkerSource) {
                 // task.type == sourcetype.method
                 const keys = task.type.split('.');
                 const scope = this.parent.getWorkerSource(task.sourceMapId, keys[0], params.source);
@@ -31915,7 +31538,6 @@ exports.UniformMatrix4f = UniformMatrix4f;
 exports.UnwrappedTileID = UnwrappedTileID;
 exports.ValidationError = ValidationError;
 exports.ZoomHistory = ZoomHistory;
-exports.__awaiter = __awaiter;
 exports.add = add$4;
 exports.addDynamicAttributes = addDynamicAttributes;
 exports.arrayBufferToImage = arrayBufferToImage;
@@ -32484,19 +32106,17 @@ class RasterDEMTileWorkerSource {
     constructor() {
         this.loaded = {};
     }
-    loadTile(params, callback) {
-        return performance.__awaiter(this, void 0, void 0, function* () {
-            const { uid, encoding, rawImageData, redFactor, greenFactor, blueFactor, baseShift } = params;
-            const width = rawImageData.width + 2;
-            const height = rawImageData.height + 2;
-            const imagePixels = performance.isImageBitmap(rawImageData) ?
-                new performance.RGBAImage({ width, height }, yield performance.getImageData(rawImageData, -1, -1, width, height)) :
-                rawImageData;
-            const dem = new performance.DEMData(uid, imagePixels, encoding, redFactor, greenFactor, blueFactor, baseShift);
-            this.loaded = this.loaded || {};
-            this.loaded[uid] = dem;
-            callback(null, dem);
-        });
+    async loadTile(params, callback) {
+        const { uid, encoding, rawImageData, redFactor, greenFactor, blueFactor, baseShift } = params;
+        const width = rawImageData.width + 2;
+        const height = rawImageData.height + 2;
+        const imagePixels = performance.isImageBitmap(rawImageData) ?
+            new performance.RGBAImage({ width, height }, await performance.getImageData(rawImageData, -1, -1, width, height)) :
+            rawImageData;
+        const dem = new performance.DEMData(uid, imagePixels, encoding, redFactor, greenFactor, blueFactor, baseShift);
+        this.loaded = this.loaded || {};
+        this.loaded[uid] = dem;
+        callback(null, dem);
     }
     removeTile(params) {
         const loaded = this.loaded, uid = params.uid;
@@ -34245,10 +33865,10 @@ function applySourceDiff(updateable, diff, promoteId) {
             // note: removeAllProperties gives us a new properties object, so we can skip the clone step
             const cloneProperties = !update.removeAllProperties && (((_a = update.removeProperties) === null || _a === void 0 ? void 0 : _a.length) > 0 || ((_b = update.addOrUpdateProperties) === null || _b === void 0 ? void 0 : _b.length) > 0);
             if (cloneFeature || cloneProperties) {
-                feature = Object.assign({}, feature);
+                feature = { ...feature };
                 updateable.set(update.id, feature);
                 if (cloneProperties) {
-                    feature.properties = Object.assign({}, feature.properties);
+                    feature.properties = { ...feature.properties };
                 }
             }
             if (update.newGeometry) {
@@ -34273,11 +33893,34 @@ function applySourceDiff(updateable, diff, promoteId) {
     }
 }
 
+function loadGeoJSONTile(params, callback) {
+    const canonical = params.tileID.canonical;
+    if (!this._geoJSONIndex) {
+        return callback(null, null); // we couldn't load the file
+    }
+    const geoJSONTile = this._geoJSONIndex.getTile(canonical.z, canonical.x, canonical.y);
+    if (!geoJSONTile) {
+        return callback(null, null); // nothing in the given tile
+    }
+    const geojsonWrapper = new GeoJSONWrapper$2(geoJSONTile.features);
+    // Encode the geojson-vt tile into binary vector tile form.  This
+    // is a convenience that allows `FeatureIndex` to operate the same way
+    // across `VectorTileSource` and `GeoJSONSource` data.
+    let pbf = vtpbf(geojsonWrapper);
+    if (pbf.byteOffset !== 0 || pbf.byteLength !== pbf.buffer.byteLength) {
+        // Compatibility with node Buffer (https://github.com/mapbox/pbf/issues/35)
+        pbf = new Uint8Array(pbf);
+    }
+    callback(null, {
+        vectorTile: geojsonWrapper,
+        rawData: pbf.buffer
+    });
+}
 /**
  * The {@link WorkerSource} implementation that supports {@link GeoJSONSource}.
  * This class is designed to be easily reused to support custom source types
  * for data formats that can be parsed/converted into an in-memory GeoJSON
- * representation. To do so, create it with
+ * representation.  To do so, create it with
  * `new GeoJSONWorkerSource(actor, layerIndex, customLoadGeoJSONFunction)`.
  * For a full example, see [mapbox-gl-topojson](https://github.com/developmentseed/mapbox-gl-topojson).
  */
@@ -34288,7 +33931,7 @@ class GeoJSONWorkerSource extends VectorTileWorkerSource {
      * See {@link GeoJSONWorkerSource#loadGeoJSON}.
      */
     constructor(actor, layerIndex, availableImages, loadGeoJSON) {
-        super(actor, layerIndex, availableImages);
+        super(actor, layerIndex, availableImages, loadGeoJSONTile);
         this._dataUpdateable = new Map();
         /**
          * Fetch and parse GeoJSON according to the given params.  Calls `callback`
@@ -34337,33 +33980,9 @@ class GeoJSONWorkerSource extends VectorTileWorkerSource {
             }
             return { cancel: () => { } };
         };
-        this.loadVectorData = this.loadGeoJSONTile;
         if (loadGeoJSON) {
             this.loadGeoJSON = loadGeoJSON;
         }
-    }
-    loadGeoJSONTile(params, callback) {
-        const canonical = params.tileID.canonical;
-        if (!this._geoJSONIndex) {
-            return callback(null, null); // we couldn't load the file
-        }
-        const geoJSONTile = this._geoJSONIndex.getTile(canonical.z, canonical.x, canonical.y);
-        if (!geoJSONTile) {
-            return callback(null, null); // nothing in the given tile
-        }
-        const geojsonWrapper = new GeoJSONWrapper$2(geoJSONTile.features);
-        // Encode the geojson-vt tile into binary vector tile form.  This
-        // is a convenience that allows `FeatureIndex` to operate the same way
-        // across `VectorTileSource` and `GeoJSONSource` data.
-        let pbf = vtpbf(geojsonWrapper);
-        if (pbf.byteOffset !== 0 || pbf.byteLength !== pbf.buffer.byteLength) {
-            // Compatibility with node Buffer (https://github.com/mapbox/pbf/issues/35)
-            pbf = new Uint8Array(pbf);
-        }
-        callback(null, {
-            vectorTile: geojsonWrapper,
-            rawData: pbf.buffer
-        });
     }
     /**
      * Fetches (if appropriate), parses, and index geojson data into tiles. This
@@ -34646,12 +34265,12 @@ class Worker {
         }
         return layerIndexes;
     }
-    getWorkerSource(mapId, sourceType, sourceName) {
+    getWorkerSource(mapId, type, source) {
         if (!this.workerSources[mapId])
             this.workerSources[mapId] = {};
-        if (!this.workerSources[mapId][sourceType])
-            this.workerSources[mapId][sourceType] = {};
-        if (!this.workerSources[mapId][sourceType][sourceName]) {
+        if (!this.workerSources[mapId][type])
+            this.workerSources[mapId][type] = {};
+        if (!this.workerSources[mapId][type][source]) {
             // use a wrapped actor so that we can attach a target mapId param
             // to any messages invoked by the WorkerSource
             const actor = {
@@ -34659,9 +34278,9 @@ class Worker {
                     this.actor.send(type, data, callback, mapId);
                 }
             };
-            this.workerSources[mapId][sourceType][sourceName] = new this.workerSourceTypes[sourceType](actor, this.getLayerIndex(mapId), this.getAvailableImages(mapId));
+            this.workerSources[mapId][type][source] = new this.workerSourceTypes[type](actor, this.getLayerIndex(mapId), this.getAvailableImages(mapId));
         }
-        return this.workerSources[mapId][sourceType][sourceName];
+        return this.workerSources[mapId][type][source];
     }
     getDEMWorkerSource(mapId, source) {
         if (!this.demWorkerSources[mapId])
@@ -34684,7 +34303,7 @@ define(['./shared'], (function (performance) { 'use strict';
 
 var name = "maplibre-gl";
 var description = "BSD licensed community fork of mapbox-gl, a WebGL interactive maps library";
-var version$2 = "3.5.2";
+var version$2 = "3.5.0";
 var main = "dist/maplibre-gl.js";
 var style = "dist/maplibre-gl.css";
 var license = "BSD-3-Clause";
@@ -34703,12 +34322,12 @@ var dependencies = {
 	"@mapbox/unitbezier": "^0.0.1",
 	"@mapbox/vector-tile": "^1.3.1",
 	"@mapbox/whoots-js": "^3.1.0",
-	"@maplibre/maplibre-gl-style-spec": "^19.3.3",
-	"@types/geojson": "^7946.0.12",
-	"@types/mapbox__point-geometry": "^0.1.3",
-	"@types/mapbox__vector-tile": "^1.3.3",
-	"@types/pbf": "^3.0.4",
-	"@types/supercluster": "^7.1.2",
+	"@maplibre/maplibre-gl-style-spec": "^19.3.2",
+	"@types/geojson": "^7946.0.11",
+	"@types/mapbox__point-geometry": "^0.1.2",
+	"@types/mapbox__vector-tile": "^1.3.1",
+	"@types/pbf": "^3.0.3",
+	"@types/supercluster": "^7.1.1",
 	earcut: "^2.2.4",
 	"geojson-vt": "^3.2.1",
 	"gl-matrix": "^3.4.3",
@@ -34725,52 +34344,51 @@ var dependencies = {
 var devDependencies = {
 	"@mapbox/mapbox-gl-rtl-text": "^0.2.3",
 	"@mapbox/mvt-fixtures": "^3.10.0",
-	"@rollup/plugin-commonjs": "^25.0.7",
+	"@rollup/plugin-commonjs": "^25.0.5",
 	"@rollup/plugin-json": "^6.0.1",
 	"@rollup/plugin-node-resolve": "^15.2.3",
-	"@rollup/plugin-replace": "^5.0.4",
-	"@rollup/plugin-strip": "^3.0.4",
+	"@rollup/plugin-replace": "^5.0.3",
+	"@rollup/plugin-strip": "^3.0.3",
 	"@rollup/plugin-terser": "^0.4.4",
 	"@rollup/plugin-typescript": "^11.1.5",
 	"@types/benchmark": "^2.1.3",
 	"@types/cssnano": "^5.0.0",
 	"@types/d3": "^7.4.1",
-	"@types/diff": "^5.0.7",
-	"@types/earcut": "^2.1.3",
-	"@types/eslint": "^8.44.6",
-	"@types/geojson-vt": "3.2.3",
-	"@types/gl": "^6.0.4",
+	"@types/diff": "^5.0.6",
+	"@types/earcut": "^2.1.2",
+	"@types/eslint": "^8.44.4",
+	"@types/gl": "^6.0.3",
 	"@types/glob": "^8.1.0",
 	"@types/jest": "^29.5.3",
 	"@types/jsdom": "^21.1.3",
-	"@types/minimist": "^1.2.4",
-	"@types/murmurhash-js": "^1.0.5",
+	"@types/minimist": "^1.2.3",
+	"@types/murmurhash-js": "^1.0.4",
 	"@types/nise": "^1.4.2",
 	"@types/node": "^20.8.3",
-	"@types/offscreencanvas": "^2019.7.2",
+	"@types/offscreencanvas": "^2019.7.1",
 	"@types/pixelmatch": "^5.2.4",
-	"@types/pngjs": "^6.0.3",
-	"@types/react": "^18.2.31",
+	"@types/pngjs": "^6.0.2",
+	"@types/react": "^18.2.28",
 	"@types/react-dom": "^18.2.13",
-	"@types/request": "^2.48.11",
-	"@types/shuffle-seed": "^1.1.1",
+	"@types/request": "^2.48.10",
+	"@types/shuffle-seed": "^1.1.0",
 	"@types/window-or-global": "^1.0.4",
-	"@typescript-eslint/eslint-plugin": "^6.8.0",
-	"@typescript-eslint/parser": "^6.8.0",
+	"@typescript-eslint/eslint-plugin": "^6.7.5",
+	"@typescript-eslint/parser": "^6.7.5",
 	address: "^2.0.1",
 	benchmark: "^2.1.4",
 	canvas: "^2.11.2",
 	cssnano: "^6.0.1",
 	d3: "^7.8.5",
 	"d3-queue": "^3.0.7",
-	"devtools-protocol": "^0.0.1212569",
+	"devtools-protocol": "^0.0.1208070",
 	diff: "^5.1.0",
 	"dts-bundle-generator": "^8.0.1",
-	eslint: "^8.52.0",
+	eslint: "^8.51.0",
 	"eslint-config-mourner": "^3.0.0",
 	"eslint-plugin-html": "^7.1.0",
 	"eslint-plugin-import": "^2.28.1",
-	"eslint-plugin-jest": "^27.4.3",
+	"eslint-plugin-jest": "^27.4.2",
 	"eslint-plugin-react": "^7.33.2",
 	"eslint-plugin-tsdoc": "0.2.17",
 	expect: "^29.7.0",
@@ -34784,7 +34402,8 @@ var devDependencies = {
 	"json-stringify-pretty-compact": "^4.0.0",
 	minimist: "^1.2.8",
 	"mock-geolocation": "^1.0.11",
-	nise: "^5.1.5",
+	nise: "^5.1.4",
+	"node-plantuml": "^0.9.0",
 	"npm-font-open-sans": "^1.1.0",
 	"npm-run-all": "^4.1.5",
 	"pdf-merger-js": "^4.3.0",
@@ -34797,14 +34416,14 @@ var devDependencies = {
 	puppeteer: "^21.3.8",
 	react: "^18.2.0",
 	"react-dom": "^18.2.0",
-	rollup: "^4.1.4",
+	rollup: "^4.0.2",
 	"rollup-plugin-sourcemaps": "^0.6.3",
 	rw: "^1.3.3",
 	semver: "^7.5.4",
 	"shuffle-seed": "^1.1.6",
 	"source-map-explorer": "^2.5.3",
 	st: "^3.0.0",
-	stylelint: "^15.11.0",
+	stylelint: "^15.10.3",
 	"stylelint-config-standard": "^34.0.0",
 	"ts-jest": "^29.1.1",
 	"ts-node": "^10.9.1",
@@ -34837,6 +34456,7 @@ var scripts = {
 	"build-csp": "rollup --configPlugin @rollup/plugin-typescript -c rollup.config.csp.ts",
 	"build-csp-dev": "rollup --configPlugin @rollup/plugin-typescript -c rollup.config.csp.ts --environment BUILD:dev",
 	"build-css": "postcss -o dist/maplibre-gl.css src/css/maplibre-gl.css",
+	"build-diagrams": "cd docs/diagrams; ls *.plantuml | xargs -I {} puml generate --svg {} -o {}.svg",
 	"watch-css": "postcss --watch -o dist/maplibre-gl.css src/css/maplibre-gl.css",
 	"build-benchmarks": "npm run build-dev && rollup --configPlugin @rollup/plugin-typescript -c test/bench/rollup_config_benchmarks.ts",
 	"watch-benchmarks": "rollup --configPlugin @rollup/plugin-typescript -c test/bench/rollup_config_benchmarks.ts --watch",
@@ -36315,7 +35935,7 @@ class Dispatcher {
         const workers = this.workerPool.acquire(mapId);
         for (let i = 0; i < workers.length; i++) {
             const worker = workers[i];
-            const actor = new performance.Actor(worker, parent, mapId);
+            const actor = new Dispatcher.Actor(worker, parent, mapId);
             actor.name = `Worker ${i}`;
             this.actors.push(actor);
         }
@@ -36346,6 +35966,7 @@ class Dispatcher {
             this.workerPool.release(this.id);
     }
 }
+Dispatcher.Actor = performance.Actor;
 
 function loadTileJson(options, requestManager, callback) {
     const loaded = function (err, tileJSON) {
@@ -37064,7 +36685,7 @@ class RasterDEMTileSource extends RasterTileSource {
         const url = tile.tileID.canonical.url(this.tiles, this.map.getPixelRatio(), this.scheme);
         const request = this.map._requestManager.transformRequest(url, ResourceType.Tile);
         tile.neighboringTiles = this._getNeighboringTiles(tile.tileID);
-        tile.request = ImageRequest.getImage(request, (err, img, expiry) => performance.__awaiter(this, void 0, void 0, function* () {
+        tile.request = ImageRequest.getImage(request, async (err, img, expiry) => {
             delete tile.request;
             if (tile.aborted) {
                 tile.state = 'unloaded';
@@ -37078,7 +36699,7 @@ class RasterDEMTileSource extends RasterTileSource {
                 if (this.map._refreshExpiredTiles)
                     tile.setExpiryData(expiry);
                 const transfer = performance.isImageBitmap(img) && performance.offscreenCanvasSupported();
-                const rawImageData = transfer ? img : yield readImageNow(img);
+                const rawImageData = transfer ? img : await readImageNow(img);
                 const params = {
                     uid: tile.uid,
                     coord: tile.tileID,
@@ -37095,21 +36716,19 @@ class RasterDEMTileSource extends RasterTileSource {
                     tile.actor.send('loadDEMTile', params, done);
                 }
             }
-        }), this.map._refreshExpiredTiles);
-        function readImageNow(img) {
-            return performance.__awaiter(this, void 0, void 0, function* () {
-                if (typeof VideoFrame !== 'undefined' && performance.isOffscreenCanvasDistorted()) {
-                    const width = img.width + 2;
-                    const height = img.height + 2;
-                    try {
-                        return new performance.RGBAImage({ width, height }, yield performance.readImageUsingVideoFrame(img, -1, -1, width, height));
-                    }
-                    catch (e) {
-                        // fall-back to browser canvas decoding
-                    }
+        }, this.map._refreshExpiredTiles);
+        async function readImageNow(img) {
+            if (typeof VideoFrame !== 'undefined' && performance.isOffscreenCanvasDistorted()) {
+                const width = img.width + 2;
+                const height = img.height + 2;
+                try {
+                    return new performance.RGBAImage({ width, height }, await performance.readImageUsingVideoFrame(img, -1, -1, width, height));
                 }
-                return performance.browser.getImageData(img, 1);
-            });
+                catch (e) {
+                    // fall-back to browser canvas decoding
+                }
+            }
+            return performance.browser.getImageData(img, 1);
         }
         function done(err, data) {
             if (err) {
@@ -37443,8 +37062,8 @@ class GeoJSONSource extends performance.Evented {
                 performance.extend(data, { resourceTiming });
             // although GeoJSON sources contain no metadata, we fire this event to let the SourceCache
             // know its ok to start requesting tiles.
-            this.fire(new performance.Event('data', Object.assign(Object.assign({}, data), { sourceDataType: 'metadata' })));
-            this.fire(new performance.Event('data', Object.assign(Object.assign({}, data), { sourceDataType: 'content' })));
+            this.fire(new performance.Event('data', { ...data, sourceDataType: 'metadata' }));
+            this.fire(new performance.Event('data', { ...data, sourceDataType: 'content' }));
         });
     }
     loaded() {
@@ -43055,7 +42674,6 @@ class Style extends performance.Evented {
             return;
         const sources = performance.mapObject(this.sourceCaches, (source) => source.serialize());
         const layers = this._serializeByIds(this._order);
-        const terrain = this.map.getTerrain() || undefined;
         const myStyleSheet = this.stylesheet;
         return performance.filterObject({
             version: myStyleSheet.version,
@@ -43070,8 +42688,7 @@ class Style extends performance.Evented {
             glyphs: myStyleSheet.glyphs,
             transition: myStyleSheet.transition,
             sources,
-            layers,
-            terrain
+            layers
         }, (value) => { return value !== undefined; });
     }
     _updateLayer(layer) {
@@ -44805,12 +44422,11 @@ class VertexBuffer {
 
 const cache = new WeakMap();
 function isWebGL2(gl) {
-    var _a;
     if (cache.has(gl)) {
         return cache.get(gl);
     }
     else {
-        const value = (_a = gl.getParameter(gl.VERSION)) === null || _a === void 0 ? void 0 : _a.startsWith('WebGL 2.0');
+        const value = gl.getParameter(gl.VERSION).startsWith('WebGL 2.0');
         cache.set(gl, value);
         return value;
     }
