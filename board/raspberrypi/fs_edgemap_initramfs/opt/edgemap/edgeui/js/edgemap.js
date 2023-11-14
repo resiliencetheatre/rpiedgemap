@@ -523,6 +523,14 @@ function closeMessageEntryBox() {
     }
 }
 
+var scrolling = function(e, c) {
+  e.scrollIntoView();
+  if (c < 5) setTimeout(scrolling, 300, e, c + 1);
+};
+var ensureVisible = function(e) {
+  setTimeout(scrolling, 300, e, 0);
+};
+
 // fade in/out experiment
 function fadeIn( elem, ms )
 {
