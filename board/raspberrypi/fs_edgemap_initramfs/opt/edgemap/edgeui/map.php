@@ -200,7 +200,7 @@
             </td>
         </tr>
         </table>
-        <input type="text" id="msgInput" type="text" class="messageInputField"  >
+        <input type="text" id="msgInput" type="text" class="messageInputField" onfocus="ensureVisible(this)" >
         <button id="sendMsg" class="msgbutton" onClick='' title='send' ><i data-feather="send" class="feather-msgbutton"></i></button>
     </div>
 
