@@ -130,7 +130,8 @@
         geom.cy = this.metadata.baseGeometry.g.cy;
         geom.r = this.metadata.baseGeometry.g.r;
     }
-    geom.fill = this.colors.fillColor[this.metadata.affiliation];
+    geom.fill =
+      this.style.fillColor || this.colors.fillColor[this.metadata.affiliation];
     geom.fillopacity = this.style.fillOpacity;
     geom.stroke = frameColor;
     geom.strokewidth = this.style.size >= 10 ? this.style.strokeWidth : 10;
@@ -252,7 +253,8 @@
       };
       drawArray2.push(modifier[this.metadata.affiliation]);
     }
-    // Space Modifiers
+    // Cyberspace Modifiers
+    /*
     if (this.metadata.cyberspace) {
       modifier = {
         Friend: {
@@ -282,6 +284,7 @@
       };
       drawArray2.push(modifier[this.metadata.affiliation]);
     }
+    */
     //Add a dashed outline to the frame if the status is not present.
     if (
       this.style.fill &&
@@ -2244,12 +2247,12 @@
           this.options.specialHeadquarters
             ? (strWidth(this.options.specialHeadquarters) -
                 this.metadata.baseGeometry.bbox.width()) /
-              2
+                2
             : 0,
           this.options.quantity
             ? (strWidth(this.options.quantity) -
                 this.metadata.baseGeometry.bbox.width()) /
-              2
+                2
             : 0,
           strWidth(gStrings.L1),
           strWidth(gStrings.L2),
@@ -2265,12 +2268,12 @@
           this.options.specialHeadquarters
             ? (strWidth(this.options.specialHeadquarters) -
                 this.metadata.baseGeometry.bbox.width()) /
-              2
+                2
             : 0,
           this.options.quantity
             ? (strWidth(this.options.quantity) -
                 this.metadata.baseGeometry.bbox.width()) /
-              2
+                2
             : 0,
           strWidth(gStrings.R1),
           strWidth(gStrings.R2),
@@ -2556,13 +2559,20 @@
         });
 
       //outline
-      if (this.style.outlineWidth > 0)
+      if (
+        this.style.infoOutlineWidth > 0 ||
+        (this.style.infoOutlineWidth === false && this.style.outlineWidth > 0)
+      )
         drawArray1.push(
           ms.outline(
             drawArray2,
-            this.style.outlineWidth,
+            this.style.infoOutlineWidth === false
+              ? this.style.outlineWidth
+              : this.style.infoOutlineWidth,
             this.style.strokeWidth,
-            typeof this.style.outlineColor === "object"
+            this.style.infoOutlineColor
+              ? this.style.infoOutlineColor
+              : typeof this.style.outlineColor === "object"
               ? this.style.outlineColor[this.metadata.affiliation]
               : this.style.outlineColor
           )
@@ -2912,7 +2922,7 @@
     }
   };
 
-  var ms = new function() {
+  var ms = new (function() {
     this._autoValidation = false;
     this.version = "2.0.0";
     if (typeof console === "object" && typeof process !== "object") {
@@ -2924,7 +2934,7 @@
           "ns Beckman  http://www.spatialillusions.com"
       );
     }
-  }();
+  })();
 
   ms.setColorMode = function(mode, colorMode) {
     this._colorModes[mode] = {};
@@ -3998,6 +4008,7 @@
     this.style.civilianColor = true; // Should we use the Civilian Purple defined in 2525? (We set this to default because I like the color.
     this.style.colorMode = "Light"; // 2525C Allows you to use Dark; Medium or Light colors. The values you can set are "Dark";"Medium" or "Light"
     this.style.fill = true; // Should the icon be filled with color
+    this.style.fillColor = ""; // Override the frame fill with any color
     this.style.fillOpacity = 1; // Possibility to change the fill opacity
     this.style.fontfamily = "Arial"; // The font family to use
     this.style.frame = true; // Should the icon be framed
@@ -4009,6 +4020,8 @@
     this.style.infoBackgroundFrame = ""; // Color of the squares frame
     this.style.infoColor = ""; // Changes the color of the info fields
     this.style.infoFields = true; // If you have set all info fields but don't want the displayed; then just set this to false.
+    this.style.infoOutlineColor = "rgb(239, 239, 239)"; // Color of the text outline.
+    this.style.infoOutlineWidth = false; // Width of the text-field outline.
     this.style.infoSize = 40; // Relative size of the info fields
     this.style.monoColor = ""; // Should the icon be monocromatic and if so what color
     this.style.outlineColor = "rgb(239, 239, 239)"; // Color of the outline
@@ -4053,7 +4066,7 @@
   Symbol.prototype.setOptions = setOptions;
 
   Symbol.prototype.toDataURL = function() {
-    return "data:image/svg+xml;base64," + window.btoa(this.asSVG());
+    return "data:image/svg+xml;utf8," + encodeURIComponent(this.asSVG());
   };
 
   /* ***************************************************************************************
@@ -4250,10 +4263,10 @@
         case "W":
           metadata.mobility = mapping.echelonMobility[37]; //Pack animals
           break;
-        case "Y":
+        case "X":
           metadata.mobility = mapping.echelonMobility[51]; //Barge
           break;
-        case "Z":
+        case "Y":
           metadata.mobility = mapping.echelonMobility[52]; //Amphibious
           break;
         default:
@@ -4563,7 +4576,7 @@
     The existing object of icon parts
     
     metadata
-    propterties object
+    properties object
     
     colors
     color object
@@ -4996,7 +5009,7 @@
     The existing object of icon parts
     
     metadata
-    propterties object
+    properties object
     
     colors
     color object
@@ -5813,7 +5826,7 @@
     The existing object of icon parts
     
     metadata
-    propterties object
+    properties object
     
     colors
     color object
@@ -7832,13 +7845,6 @@
         fill: false
       }
     ];
-    if (!STD2525) {
-      icn["GR.EQ.HOWITZER"].push({
-        type: "path",
-        d: "M 85,75 100,60 115,75",
-        fill: false
-      });
-    }
     icn["GR.EQ.HOWITZER TRACKED"] = {
       type: "path",
       d: "M 70,120 l 60,0 c10,0 10,10 0,10 l -60,0 c-10,0 -10,-10 0,-10",
@@ -7884,13 +7890,11 @@
     icn["GR.EQ.SURFACE-TO-SURFACE MISSILE LAUNCHER"] = [
       icn["GR.EQ.MISSILE LAUNCHER"]
     ];
-    if (STD2525) {
-      icn["GR.EQ.SURFACE-TO-SURFACE MISSILE LAUNCHER"].push({
-        type: "path",
-        d: "m 85,140 30,0",
-        fill: false
-      });
-    }
+    icn["GR.EQ.SURFACE-TO-SURFACE MISSILE LAUNCHER"].push({
+      type: "path",
+      d: "m 85,140 30,0",
+      fill: false
+    });
     icn["GR.EQ.MORTAR"] = [
       { type: "path", d: "m 100,60 0,60 M 85,75 100,60 115,75", fill: false },
       { type: "circle", cx: 100, cy: 130, r: 10, fill: false }
@@ -10324,7 +10328,7 @@
       },
       { type: "path", d: "m 135,100 -15,35 -10,0 15,-35 z" }
     ];
-    /*
+
     icn["CY.IC.COMMAND AND CONTROL (C2)"] = text("BC2");
     icn["CY.IC.HERDER"] = text("HDR");
     icn["CY.IC.CALLBACK DOMAIN"] = text("CBD");
@@ -10374,7 +10378,7 @@
     icn["CY.IC.NETWORK OUTAGE"] = text("NOT");
     icn["CY.IC.SERVICE OUTAGE"] = text("SOT");
     icn["CY.IC.DEVICE OUTAGE"] = text("DOT");
-    */
+
     icn["CY.IC.COMBAT MISSION TEAM"] = text("CMT");
     icn["CY.IC.NATIONAL MISSION TEAM"] = text("NMT");
     icn["CY.IC.CYBER PROTECTION TEAM"] = text("CPT");
@@ -12409,7 +12413,7 @@
     The existing object of icon parts
     
     metadata
-    propterties object
+    properties object
     
     colors
     color object
@@ -13088,7 +13092,7 @@
     The existing object of icon parts
     
     metadata
-    propterties object
+    properties object
     
     colors
     color object
@@ -13372,8 +13376,8 @@
           numberSIDC && alternateMedal
             ? ""
             : (STD2525 || numberSIDC) && !monoColor
-              ? colors.iconColor.Hostile
-              : iconFillColor,
+            ? colors.iconColor.Hostile
+            : iconFillColor,
         stroke: (STD2525 || numberSIDC) && !monoColor ? black : iconColor,
         d: "m 100,128 -10,15 20,0 z"
       }
@@ -13395,8 +13399,8 @@
         fill: monoColor
           ? monoColor
           : (STD2525 || numberSIDC) && !alternateMedal
-            ? black
-            : white,
+          ? black
+          : white,
         x: 100,
         y: 110,
         fontsize: 35,
@@ -13411,8 +13415,8 @@
         fill: monoColor
           ? monoColor
           : (STD2525 || numberSIDC) && !alternateMedal
-            ? black
-            : white,
+          ? black
+          : white,
         x: 100,
         y: 112,
         fontsize: 30,
@@ -13438,8 +13442,8 @@
         fill: monoColor
           ? monoColor
           : (STD2525 || numberSIDC) && !alternateMedal
-            ? black
-            : white,
+          ? black
+          : white,
         x: 100,
         y: 112,
         fontsize: 30,
@@ -13639,8 +13643,8 @@
         fill: monoColor
           ? monoColor
           : (STD2525 || numberSIDC) && !alternateMedal
-            ? black
-            : white,
+          ? black
+          : white,
         x: 100,
         y: 112,
         fontsize: 30,
@@ -13703,8 +13707,8 @@
         fill: monoColor
           ? monoColor
           : (STD2525 || numberSIDC) && !alternateMedal
-            ? black
-            : white,
+          ? black
+          : white,
         x: 100,
         y: 105,
         fontsize: 18,
@@ -13779,8 +13783,8 @@
       fill: monoColor
         ? monoColor
         : (STD2525 || numberSIDC) && !alternateMedal
-          ? black
-          : white,
+        ? black
+        : white,
       x: 100,
       y: 110,
       fontsize: 35,
@@ -13792,8 +13796,8 @@
       fill: monoColor
         ? monoColor
         : (STD2525 || numberSIDC) && !alternateMedal
-          ? black
-          : white,
+        ? black
+        : white,
       x: 100,
       y: 110,
       fontsize: 35,
@@ -13805,8 +13809,8 @@
       fill: monoColor
         ? monoColor
         : (STD2525 || numberSIDC) && !alternateMedal
-          ? black
-          : white,
+        ? black
+        : white,
       x: 100,
       y: 110,
       fontsize: 35,
@@ -13818,8 +13822,8 @@
       fill: monoColor
         ? monoColor
         : (STD2525 || numberSIDC) && !alternateMedal
-          ? black
-          : white,
+        ? black
+        : white,
       x: 100,
       y: 110,
       fontsize: 35,
@@ -13831,8 +13835,8 @@
       fill: monoColor
         ? monoColor
         : (STD2525 || numberSIDC) && !alternateMedal
-          ? black
-          : white,
+        ? black
+        : white,
       x: 100,
       y: 110,
       fontsize: 35,
@@ -13858,8 +13862,8 @@
         fill: monoColor
           ? monoColor
           : (STD2525 || numberSIDC) && !alternateMedal
-            ? black
-            : white,
+          ? black
+          : white,
         x: 100,
         y: 112,
         fontsize: 30,
@@ -13922,8 +13926,8 @@
         fill: monoColor
           ? monoColor
           : (STD2525 || numberSIDC) && !alternateMedal
-            ? black
-            : white,
+          ? black
+          : white,
         x: 100,
         y: 112,
         fontsize: 30,
@@ -13979,8 +13983,8 @@
         fill: monoColor
           ? monoColor
           : (STD2525 || numberSIDC) && !alternateMedal
-            ? black
-            : white,
+          ? black
+          : white,
         x: 100,
         y: 112,
         fontsize: 30,
@@ -14488,7 +14492,7 @@
     The existing object of icon parts
     
     metadata
-    propterties object
+    properties object
     
     colors
     color object
@@ -15465,7 +15469,7 @@
     The existing object of icon parts
     
     metadata
-    propterties object
+    properties object
     
     colors
     color object
@@ -16853,27 +16857,27 @@
             text: "RS"
           }
         : !STD2525
-          ? [
-              {
-                type: "text",
-                stroke: false,
-                textanchor: "middle",
-                x: 100,
-                y: 155,
-                fontsize: 45,
-                text: "R"
-              },
-              { type: "circle", cx: 100, cy: 100, r: 15 }
-            ]
-          : {
+        ? [
+            {
               type: "text",
               stroke: false,
               textanchor: "middle",
               x: 100,
-              y: 115,
+              y: 155,
               fontsize: 45,
-              text: "RC"
-            }
+              text: "R"
+            },
+            { type: "circle", cx: 100, cy: 100, r: 15 }
+          ]
+        : {
+            type: "text",
+            stroke: false,
+            textanchor: "middle",
+            x: 100,
+            y: 115,
+            fontsize: 45,
+            text: "RC"
+          }
     ];
     icn["TP.REPLENISH"] = [
       icn["TP.AIR CONTROL"],
@@ -19658,7 +19662,7 @@
     The existing object of icon parts
     
     metadata
-    propterties object
+    properties object
     
     colors
     color object
@@ -24125,7 +24129,7 @@
       "52": "Ground",
       "53": "Sea",
       "54": "Subsurface",
-      "60": "Ground"
+      "60": "Air"
     };
 
     var functionid = (metadata.functionid = this.options.sidc.substr(10, 10));
@@ -25040,7 +25044,7 @@
             : icn["GR.M1.ANTISUBMARINE WARFARE"]
         ];
         sIdm1["75"] = [icn["GR.M1.MEDEVAC"]];
-        sIdm1["76"] = [icn["GR.M1.CYBERSPACE"]];
+        sIdm1["76"] = [icn["GR.M1.RANGER"]];
         sIdm1["77"] = [icn["GR.M1.SUPPORT"]];
         sIdm1["78"] = [icn["GR.M1.AVIATION"]];
         sIdm1["79"] = [icn["GR.M1.ROUTE, RECONNAISSANCE, AND CLEARANCE"]];
@@ -25821,7 +25825,7 @@
         sId["220000"] = [];
         sId["220100"] = [icn["GR.EQ.SENSOR"]];
         sId["220200"] = [icn["GR.EQ.SENSOR EMPLACED"]];
-        sId["220300"] = [icn["GR.EQ.RADAR"]];
+        sId["220300"] = [icn["SI.IC.RADAR"]];
         sId["230000"] = [icn["GR.IC.FF.EMERGENCY OPERATION"]];
         sId["230100"] = [
           icn["GR.EQ.CIVILIAN VEHICLE.UTILITY VEHICLE"],
@@ -27094,13 +27098,13 @@
       //Adds support for Cyberspace
       if (symbolSet == "60") {
         sId["110000"] = [];
-        sId["110100"] = [icn["CY.IC.COMBAT MISSION TEAM"]];
-        sId["110200"] = [icn["CY.IC.NATIONAL MISSION TEAM"]];
-        sId["110300"] = [icn["CY.IC.CYBER PROTECTION TEAM"]];
-        sId["110400"] = [icn["CY.IC.NATION STATE CYBER THREAT ACTOR"]];
-        sId["110500"] = [icn["CY.IC.NON NATION STATE CYBER THREAT ACTOR"]];
-        /*
-        //sId['120000'] = 'Infection';
+        sId["110100"] = [icn["CY.IC.COMMAND AND CONTROL (C2)"]];
+        sId["110200"] = [icn["CY.IC.HERDER"]];
+        sId["110300"] = [icn["CY.IC.CALLBACK DOMAIN"]];
+        sId["110400"] = [icn["CY.IC.ZOMBIE"]];
+        // sId["110500"] = //[icn["CY.IC.NON NATION STATE CYBER THREAT ACTOR"]];
+
+        sId["120000"] = []; //'Infection';
         sId["120100"] = [icn["CY.IC.ADVANCED PERSISTENT THREAT (APT)"]];
         sId["120101"] = [icn["CY.IC.APT WITH C2"]];
         sId["120102"] = [icn["CY.IC.APT WITH SELF PROPAGATION"]];
@@ -27111,12 +27115,14 @@
         sId["120202"] = [icn["CY.IC.NAPT WITH SELF PROPAGATION"]];
         sId["120203"] = [icn["CY.IC.NAPT WITH C2 AND SELF PROPAGATION"]];
         sId["120204"] = [icn["CY.IC.NAPT OTHER"]];
-        //sId['130000'] = 'Health and Status';
+
+        sId["130000"] = []; //'Health and Status';
         sId["130100"] = [icn["CY.IC.NORMAL"]];
         sId["130200"] = [icn["CY.IC.NETWORK OUTAGE"]];
         sId["130300"] = [icn["CY.IC.UNKNOWN"]];
         sId["130400"] = [icn["CY.IC.IMPAIRED"]];
-        //sId['140000'] = 'Device Type';
+
+        sId["140000"] = []; //'Device Type';
         sId["140100"] = [icn["CY.IC.CORE ROUTER"]];
         sId["140200"] = [icn["CY.IC.ROUTER"]];
         sId["140300"] = [icn["CY.IC.CROSS DOMAIN SOLUTION"]];
@@ -27129,7 +27135,8 @@
         sId["141000"] = [icn["CY.IC.SWITCH"]];
         sId["141100"] = [icn["CY.IC.HOST"]];
         sId["141200"] = [icn["CY.IC.VIRTUAL PRIVATE NETWORK (VPN)"]];
-        //sId['150000'] = 'Device Domain';
+
+        sId["150000"] = []; //'Device Domain';
         sId["150100"] = [icn["CY.IC.DEPARTMENT OF DEFENSE (DOD)"]];
         sId["150200"] = [icn["CY.IC.GOVERNMENT"]];
         sId["150300"] = [icn["CY.IC.CONTRACTOR"]];
@@ -27137,7 +27144,8 @@
           icn["CY.IC.SUPERVISORY CONTROL AND DATA ACQUISITION (SCADA)"]
         ];
         sId["150500"] = [icn["CY.IC.NON-GOVERNMENT"]];
-        //sId['160000'] = 'Effect';
+
+        sId["160000"] = []; //'Effect';
         sId["160100"] = [icn["CY.IC.INFECTION"]];
         sId["160200"] = [icn["CY.IC.DEGRADATION"]];
         sId["160300"] = [icn["CY.IC.DATA SPOOFING"]];
@@ -27147,7 +27155,6 @@
         sId["160700"] = [icn["CY.IC.NETWORK OUTAGE"]];
         sId["160800"] = [icn["CY.IC.SERVICE OUTAGE"]];
         sId["160900"] = [icn["CY.IC.DEVICE OUTAGE"]];
-        */
       }
     }
   };

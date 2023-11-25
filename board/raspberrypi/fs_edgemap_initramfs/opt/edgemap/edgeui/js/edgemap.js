@@ -1,7 +1,175 @@
 /*
- * This is stripped down version of edgemap.js
- * 
- */
+  _____    _                                  
+ | ____|__| | __ _  ___ _ __ ___   __ _ _ __  
+ |  _| / _` |/ _` |/ _ \ '_ ` _ \ / _` | '_ \ 
+ | |__| (_| | (_| |  __/ | | | | | (_| | |_) |
+ |_____\__,_|\__, |\___|_| |_| |_|\__,_| .__/ 
+             |___/                     |_|   
+
+    Simple Edgemap UI 
+  
+    (C) Resilience-Theatre 2023
+    
+    [1] https://www.spatialillusions.com/milsymbol/documentation.html
+    [2] https://maplibre.org/maplibre-gl-js/docs/API/
+
+    Example sensorMarker messages for debugging:
+
+    Ground track equipment, sensor:
+    sensorMarker|[31.3273146,62.6350321]|path12,track sensor,SFG-ES------
+    Electronic Warfare
+    sensorMarker|[31.3275146,62.6350321]|path12,alive ping,SFG-UUMSE-
+    Search center
+    sensorMarker|[31.3275146,62.6350321]|path12,alive ping,GFG-GPUSC-
+    Point of interest:
+    sensorMarker|[31.3275146,62.6350321]|path12,POI-12,GFG-GPRI--
+    Observation post:
+    sensorMarker|[31.3275146,62.6350321]|path12,alive ping,GFG-DPO---
+    Unspecified mine:
+    sensorMarker|[31.3275146,62.6350321]|path12,Unspecified Mine,GFM-OMU---
+    Sigint cellular:
+    sensorMarker|[31.3275146,62.6350321]|path12,SIGINT,IFG-SCC---
+    Refugees:
+    sensorMarker|[31.3275146,62.6350321]|path12,Group of 10,OFI-R-----
+    SOF unit
+    sensorMarker|[31.3275146,62.6350321]|path12,alive ping,SFF-------
+
+    Template:
+
+    sensorMarker|[19.5639038,69.1898969]|path12,alive ping,SFF-------
+    sensorMarker|[19.5881080,69.2156180]|path32,alive ping,SFF------- 
+ 
+*/
+
+// Submit image upload prototype. TODO: lat,lon and callsign
+function submitImage() {
+    
+    // These are populated from geolocate update at map.php
+    /*var formInfo = document.forms['uploadform'];
+    formInfo.lat.value = "10.00";
+    formInfo.lon.value = "15.00";
+    formInfo.callsign.value = "callsign";
+    */
+    uploadform.submit();
+}
+
+function createSensorMarker(lon,lat,markerId,markerStatus,sensorSymbol) {
+    
+    if ( !sensorMarker[markerId] ) {
+        console.log("createSensorMarker() " + markerId);
+        var ll = new maplibregl.LngLat(lon, lat);	
+        sensorMarkerPopup[markerId] = new maplibregl.Popup({ offset: 25, closeOnClick: false,  }).setHTML(markerStatus);
+        const sensoreMarkerGraph = new ms.Symbol(sensorSymbol, { size:30 });
+        var sensoreMarkerGraphDom = sensoreMarkerGraph.asDOM();
+        // Use milsymbol as marker
+        sensorMarker[markerId] = new maplibregl.Marker({
+            color: "#2EAA2E",
+            element: sensoreMarkerGraphDom,
+            draggable: false
+            })
+            .setLngLat( ll )
+            .setPopup(sensorMarkerPopup[markerId])
+            .addTo(map);
+        sensorMarker[markerId].togglePopup();
+    }
+    // If marker is created with 'markerId' - update location + markerStatus + symbol
+    if ( sensorMarker[markerId] ) {
+        console.log("createSensorMarker() updating: " + markerId);
+        var ll = new maplibregl.LngLat(lon, lat);
+        sensorMarker[markerId].remove();
+        // Create marker DOM
+        const sensoreMarkerGraph = new ms.Symbol(sensorSymbol, { size:30 });
+        var sensoreMarkerGraphDom = sensoreMarkerGraph.asDOM();
+        
+        sensorMarker[markerId] = new maplibregl.Marker({
+            color: "#2EAA2E",
+            element: sensoreMarkerGraphDom,
+            draggable: false
+            })
+            .setLngLat( ll )
+            .setPopup(sensorMarkerPopup[markerId])
+            .addTo(map);
+        sensorMarkerPopup[markerId].setHTML(markerStatus);
+        if ( !sensorMarkerPopup[markerId].isOpen() ) {
+            sensorMarker[markerId].togglePopup();
+        }
+    }
+    
+}
+
+
+
+// Marker from geolocation 
+function createTrackMarkerFromMessage(lon, lat, msgFrom, msgMessage) {
+
+    if ( !trackMessageMarkers[msgFrom] ) {
+        console.log("Creating marker for: " + msgFrom);
+        
+        fadeIn(document.getElementById("bottomLog") ,400);
+        document.getElementById("notifyMessage").innerHTML="Creating marker for: " + msgFrom;
+        setTimeout(() => {
+          fadeOut(document.getElementById("bottomLog") ,1000);
+        }, "5000");
+
+        trackMessageMarkerGraph.setOptions({ type: msgFrom });
+        trackMessageMarkerGraphDom = trackMessageMarkerGraph.asDOM();
+        var ll = new maplibregl.LngLat(lon, lat);
+        trackMessageMarkers[msgFrom] = new maplibregl.Marker({
+		element: trackMessageMarkerGraphDom,
+		draggable: false
+		})
+		.setLngLat( ll )
+		.addTo(map);
+    }
+    
+    // Update location of already created markers 
+    if ( trackMessageMarkers[msgFrom] ) {
+        
+         if ( msgMessage.includes("Stopped") ) {
+            fadeIn(document.getElementById("bottomLog") ,400);
+            document.getElementById("notifyMessage").innerHTML="Tracking stopped: " + msgFrom;
+            setTimeout(() => {
+              fadeOut(document.getElementById("bottomLog") ,1000);
+            }, "5000");
+        }
+        trackMessageMarkers[msgFrom].remove();
+        // Get time
+        var date = new Date();        
+        var hours;
+        var minutes;
+        var seconds;
+        if ( date.getHours() < 10 ) {
+            hours = "0" + date.getHours();
+        } else {
+            hours = date.getHours();
+        }
+        if ( date.getMinutes() < 10 ) {
+            minutes = "0" + date.getMinutes();
+        } else {
+            minutes = date.getMinutes();
+        }
+         if ( date.getSeconds() < 10 ) {
+            seconds = "0" + date.getSeconds();
+        } else {
+            seconds = date.getSeconds();
+        }
+        var timeStamp = hours + ":" + minutes + ":"+ seconds;
+        // Update marker options
+        trackMessageMarkerGraph.setOptions({ staffComments: timeStamp  });
+        trackMessageMarkerGraph.setOptions({ additionalInformation: msgMessage  });
+        trackMessageMarkerGraph.setOptions({ type: msgFrom });
+        trackMessageMarkerGraphDom = trackMessageMarkerGraph.asDOM();
+        // Get new position
+        var ll = new maplibregl.LngLat(lon, lat);
+        // Add marker to map
+        trackMessageMarkers[msgFrom] = new maplibregl.Marker({
+            element: trackMessageMarkerGraphDom,
+            draggable: false
+            })
+            .setLngLat( ll )
+            .addTo(map);
+    }  
+}
 
 /* Create marker from incoming Message */
 function createMarkerFromMessage(index, lon, lat, markerText) {
@@ -34,12 +202,13 @@ function newDragableMarker() {
 	markerD._element.id = "dM-" + Date.now();
 	// inline dragend function
 	markerD.on('dragend', () => {
+        msgInput.value = "";
 		var lngLat = markerD.getLngLat();
 		var msgLatValue = String(lngLat.lat);
 		var msgLonValue = String(lngLat.lng);	
-		var templateValue = 'MARKER|[' + msgLonValue.substr(0,8) + ',' + msgLatValue.substr(0,8) + ']|';
-		// Place marker info for msg out line for description type & send
+		var templateValue = 'dropMarker|[' + msgLonValue.substr(0,8) + ',' + msgLatValue.substr(0,8) + ']|';
 		msgInput.value = templateValue;
+        document.getElementById("msgInput").focus();
 		markerD.setPopup(new maplibregl.Popup().setHTML(templateValue)); // probably not needed
 		lastDraggedMarkerId = markerD._element.id;
 	});
@@ -54,7 +223,6 @@ function addPopupToMarker(popupText) {
 function eraseMsgLog() {
 	document.getElementById('msgChannelLog').innerHTML = ""; 
 }
-
 
 function parse_query_string(query) {
   var vars = query.split("&");
@@ -81,14 +249,38 @@ function parse_query_string(query) {
 
 // Highrate marker animation function
 function animateHighrateMarker(timestamp) {		
-		var lat = document.getElementById('lat_highrate').innerHTML;
-		var lon = document.getElementById('lon_highrate').innerHTML; 
-		highrateMarker.setLngLat([lat,lon]);
-		// Ensure it's added to the map. This is safe to call if it's already added.
-		highrateMarker.addTo(map);
-		// Request the next frame of the animation. ,
-		requestAnimationFrame(animateHighrateMarker);
+		
+        // Experimental version
+        if ( 1 ) {
+            highrateMarker.remove();
+            var lat = document.getElementById('lat_highrate').innerHTML;
+            var lon = document.getElementById('lon_highrate').innerHTML; 
+            var highrateName = document.getElementById('name_highrate').innerHTML;
+            var locationComment = lat + "," + lon;
+            milSymbolHighrate.setOptions({ staffComments: locationComment });
+            milSymbolHighrate.setOptions({ type: highrateName });
+            
+            milSymHighrateMarker = milSymbolHighrate.asDOM();
+            highrateMarker = new maplibregl.Marker({
+                    element: milSymHighrateMarker
+				});
+            highrateMarker.setLngLat([lat,lon]);
+            highrateMarker.addTo(map);
+            requestAnimationFrame(animateHighrateMarker);
+        }
+
+        // Working stable:
+        if( 0 ) {
+            var lat = document.getElementById('lat_highrate').innerHTML;
+            var lon = document.getElementById('lon_highrate').innerHTML; 
+            highrateMarker.setLngLat([lat,lon]);
+            // Ensure it's added to the map. This is safe to call if it's already added.
+            highrateMarker.addTo(map);
+            // Request the next frame of the animation. ,
+            requestAnimationFrame(animateHighrateMarker);
+        }
 } 
+
 // CoT target tail toggle
 function toggleTail() {
 	if (map.getLayer('route')) {
@@ -99,6 +291,7 @@ function toggleTail() {
 }
 // Add 'route' layer for LineString geojson display. 
 // NOTE: Layer is added before 'drone' layer. 
+// https://jsfiddle.net/brianssheldon/wm18a33d/27/
 function showTails() {
 	if (!map.getLayer('route')) {
 		/* line string layer */
@@ -107,21 +300,47 @@ function showTails() {
 		'type': 'line',
 		'source': 'drone',
 		'layout': {
-		'line-join': 'round',
-		'line-cap': 'round'
-		},
-		'paint': {
-		'line-color':  ['get', 'color'],
-		'line-width': ['get', 'width'],
-		'line-opacity': ['get', 'opacity']
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color':  ['get', 'color'],
+            'line-width': ['get', 'width'],
+            'line-opacity': ['get', 'opacity']
+            
 		},
 		'filter': ['==', '$type', 'LineString']
 		},'drone');
+        
+        // Test labeling link lines with data from geojson
+          map.addLayer({
+            "id": "symbols",
+            "type": "symbol",
+            "source": "drone",
+            "layout": {
+              "symbol-placement": "line",
+              "text-font": ["Open Sans Regular"],
+              "text-field":  ['get', 'title'], 
+              "text-size": ['get', 'text-size']
+            },
+            paint: {
+              "text-color": ['get', 'text-color'],
+              "text-halo-color":  ['get', 'text-halo-color'],
+              "text-halo-width":  ['get', 'text-halo-width'],
+              "text-halo-blur":  ['get', 'text-halo-blur']
+            },
+            filter: ['==', '$type', 'LineString']
+          });
+        
 	}
+
+    
+    
 }
 function hideTails() {
 	if (map.getLayer('route')) map.removeLayer('route'); 
 }
+
 // Options to change map style on fly.
 // NOTE: Not in use, since style change loses symbols (TODO)
 function setDarkStyle() {
@@ -223,22 +442,28 @@ function videoPanelsVisible(videoAvail) {
 		document.getElementById("cam10").src="";
 	}
 }
+
+// 
 // This will update image based on JSON parsing every 2 s 
 // Only dynamic field is dtg: sTimeStamp
-// NOTE: we have ageSeconds - but needs to illustrate it still
-// NOTE: There is open issue with updating image when it size changes
-// 		 maplibre-gl-js throws an error on such change. To be checked.
+// 
+// NOTE: 
+// * We have ageSeconds - but needs to illustrate it still
+// * Simulation targets do not provide time
+//
 function updateImage(sName, sTimeStamp, ageSeconds) {
-	// SFGAUCR-----	Anticipated
+    // SFGAUCR-----	Anticipated
 	// SFGPUCR----- Present
 	// SFGCUCR----- Fully capable
 	// SFGDUCR----- Damaged
-	if ( ageSeconds < 60 ) {
+    if ( ageSeconds < 60 ) {
 		symbolCode = "SFGCUCR-----"; 
 	} else {
 		symbolCode = "SFGDUCR-----";
 	}
-	var updatedSym = new ms.Symbol(symbolCode, { size:symbolSize,
+	// NOTE: This is override for simulation    
+    // symbolCode = "SFGPUCR-----";
+	var updatedSym = new ms.Symbol(symbolCode, { size:20,
 		dtg: "",
 		staffComments: "".toUpperCase(),
 		additionalInformation: "".toUpperCase(),
@@ -251,26 +476,38 @@ function updateImage(sName, sTimeStamp, ageSeconds) {
 	var updatedImg = new Image();
 	updatedImg.src = updateCanvasElement.toDataURL();
 	if ( map.hasImage( sName ) ) {
-		map.updateImage( sName, updatedImg, { width: 252, height: 65 });
+        // Update would be better, but size change
+        // map.updateImage( sName, updatedImg );
+        map.removeImage( sName );
+        map.addImage( sName, updatedImg );
 	}
 }	
+
+
 // Create image function, creates image element initially. 
-// TODO: Size mismatch is an issue still. 
+// TODO: Size mismatch is an issue still.  symbolSize
 function createImage(sName) {
-	var updatedSym = new ms.Symbol("SFGPUCR-----", { size:symbolSize,
-	dtg: "",
-	staffComments: "".toUpperCase(),
-	additionalInformation: "".toUpperCase(),
-	combatEffectiveness: "READY".toUpperCase(),
-	type: "",
-	padding: 5
+    var updatedSym = new ms.Symbol("SFGPUCR-----", { size:20,
+        dtg: "",
+        staffComments: "".toUpperCase(),
+        additionalInformation: "".toUpperCase(),
+        combatEffectiveness: "READY".toUpperCase(),
+        type: "",
+        padding: 5
 	});
 	var updateCanvasElement = updatedSym.asCanvas();
-	var updateSymoffset = 0 - updatedSym.getAnchor().x;
-	var updatedImg = new Image();
+    // TODO: On first call, we get this
+    // "Uncaught DOMException: Index or size is negative or greater than the allowed amount"
+    // Is this firefox issue?
+    var updatedImg = new Image();
 	updatedImg.src = updateCanvasElement.toDataURL();
-	map.addImage(sName,updatedImg, { width: 252, height: 65 });
+    map.addImage(sName,updatedImg );
 }
+
+
+
+
+
 
 function getCoordinatesToClipboard() {
 	var copyText = document.getElementById('lat').innerHTML + "," + document.getElementById('lon').innerHTML;
@@ -323,6 +560,11 @@ function addCat(lon,lat) {
             }
         );
 }
+
+
+
+
+
 
 
 // Example from maplibre-gl pulsedot
@@ -388,7 +630,7 @@ function addDot(lon,lat) {
     };
     // 
     map.addImage('pulsing-dot', pulsingDot, {pixelRatio: 2});
-    map.addSource('points', {
+    map.addSource('pulsingpoints', {
         'type': 'geojson',
         'data': {
             'type': 'FeatureCollection',
@@ -404,9 +646,9 @@ function addDot(lon,lat) {
         }
     });
     map.addLayer({
-        'id': 'points',
+        'id': 'pulsepointslayer',
         'type': 'symbol',
-        'source': 'points',
+        'source': 'pulsingpoints',
         'layout': {
             'icon-image': 'pulsing-dot'
         }
@@ -417,11 +659,11 @@ function removeDot() {
     if (map.getImage("pulsing-dot")) {
         map.removeImage('pulsing-dot');
     }
-    if (map.getLayer("points")) {
-        map.removeLayer('points');
+    if (map.getLayer("pulsepointslayer")) {
+        map.removeLayer('pulsepointslayer');
     }
-    if (map.getSource("points")) {
-        map.removeSource('points');
+    if (map.getSource("pulsingpoints")) {
+        map.removeSource('pulsingpoints');
     }
 }
 
@@ -487,6 +729,9 @@ function openCallSignEntryBox() {
 }
 function closeCallSignEntryBox() {
     fadeOut(callSignEntryBoxDiv,200);
+    var newCallSign=document.getElementById('myCallSign').value; 
+    document.getElementById('myCallSign').value = newCallSign;
+    document.getElementById('callSignDisplay').innerHTML = newCallSign;
 }
     
 function openMessageEntryBox() {
@@ -600,17 +845,18 @@ function isHidden(el) {
 // draglab
 function onDrag() {
     const lngLat = dragMarker.getLngLat();
-    var dragLocationPayload = `dragMarker|dragMarker|${lngLat.lng},${lngLat.lat}|drag_message`;
+    var dragLocationPayload = callSign + `|dragMarker|${lngLat.lng},${lngLat.lat}|dragged`;
     var msgPayload = dragLocationPayload + '\n';
     msgSocket.send( msgPayload ); 
 }
     
 function onDragEnd() {
     const lngLat = dragMarker.getLngLat();
-    var dragLocationPayload = `dragMarker|dragMarker|${lngLat.lng},${lngLat.lat}|dragend_message`;
+    var dragLocationPayload = callSign + `|dragMarker|${lngLat.lng},${lngLat.lat}|released`;
     var msgPayload = dragLocationPayload + '\n';
     msgSocket.send( msgPayload );
 }
+
 
 //
 // Show features for debugging, if you enabled this
@@ -658,4 +904,12 @@ function toggleHillShadow() {
     }
 }
 
+// https://stackoverflow.com/questions/11475146/javascript-regex-to-validate-gps-coordinates
+const regexLat = /^(-?[1-8]?\d(?:\.\d{1,18})?|90(?:\.0{1,18})?)$/;
+const regexLon = /^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,18})?|180(?:\.0{1,18})?)$/;
 
+function check_lat_lon(lat, lon) {
+  let validLat = regexLat.test(lat);
+  let validLon = regexLon.test(lon);
+  return (validLat && validLon);
+}

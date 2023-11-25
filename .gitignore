@@ -5,3 +5,4 @@ wgcap_service.conf
 *.pkcs1
 *.pmtiles
 *.mbtiles
+test.db
