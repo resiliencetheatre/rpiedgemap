@@ -1,4 +1,4 @@
-/* MapLibre GL JS is licensed under the 3-Clause BSD License. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v3.5.2/LICENSE.txt */
+/* MapLibre GL JS is licensed under the 3-Clause BSD License. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v3.6.1/LICENSE.txt */
 (function (global, factory) {
 typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 typeof define === 'function' && define.amd ? define(factory) :
@@ -28685,7 +28685,7 @@ SymbolBucket.addDynamicAttributes = addDynamicAttributes;
  */
 function resolveTokens(properties, text) {
     return text.replace(/{([^{}]+)}/g, (match, key) => {
-        return key in properties ? String(properties[key]) : '';
+        return properties && key in properties ? String(properties[key]) : '';
     });
 }
 
@@ -34684,7 +34684,7 @@ define(['./shared'], (function (performance) { 'use strict';
 
 var name = "maplibre-gl";
 var description = "BSD licensed community fork of mapbox-gl, a WebGL interactive maps library";
-var version$2 = "3.5.2";
+var version$2 = "3.6.1";
 var main = "dist/maplibre-gl.js";
 var style = "dist/maplibre-gl.css";
 var license = "BSD-3-Clause";
@@ -34704,11 +34704,11 @@ var dependencies = {
 	"@mapbox/vector-tile": "^1.3.1",
 	"@mapbox/whoots-js": "^3.1.0",
 	"@maplibre/maplibre-gl-style-spec": "^19.3.3",
-	"@types/geojson": "^7946.0.12",
-	"@types/mapbox__point-geometry": "^0.1.3",
+	"@types/geojson": "^7946.0.13",
+	"@types/mapbox__point-geometry": "^0.1.4",
 	"@types/mapbox__vector-tile": "^1.3.3",
 	"@types/pbf": "^3.0.4",
-	"@types/supercluster": "^7.1.2",
+	"@types/supercluster": "^7.1.3",
 	earcut: "^2.2.4",
 	"geojson-vt": "^3.2.1",
 	"gl-matrix": "^3.4.3",
@@ -34728,49 +34728,49 @@ var devDependencies = {
 	"@rollup/plugin-commonjs": "^25.0.7",
 	"@rollup/plugin-json": "^6.0.1",
 	"@rollup/plugin-node-resolve": "^15.2.3",
-	"@rollup/plugin-replace": "^5.0.4",
+	"@rollup/plugin-replace": "^5.0.5",
 	"@rollup/plugin-strip": "^3.0.4",
 	"@rollup/plugin-terser": "^0.4.4",
 	"@rollup/plugin-typescript": "^11.1.5",
-	"@types/benchmark": "^2.1.3",
+	"@types/benchmark": "^2.1.5",
 	"@types/cssnano": "^5.0.0",
-	"@types/d3": "^7.4.1",
-	"@types/diff": "^5.0.7",
-	"@types/earcut": "^2.1.3",
-	"@types/eslint": "^8.44.6",
-	"@types/geojson-vt": "3.2.3",
+	"@types/d3": "^7.4.2",
+	"@types/diff": "^5.0.8",
+	"@types/earcut": "^2.1.4",
+	"@types/eslint": "^8.44.7",
+	"@types/geojson-vt": "3.2.4",
 	"@types/gl": "^6.0.4",
 	"@types/glob": "^8.1.0",
 	"@types/jest": "^29.5.3",
-	"@types/jsdom": "^21.1.3",
-	"@types/minimist": "^1.2.4",
+	"@types/jsdom": "^21.1.5",
+	"@types/minimist": "^1.2.5",
 	"@types/murmurhash-js": "^1.0.5",
-	"@types/nise": "^1.4.2",
+	"@types/nise": "^1.4.4",
 	"@types/node": "^20.8.3",
-	"@types/offscreencanvas": "^2019.7.2",
-	"@types/pixelmatch": "^5.2.4",
-	"@types/pngjs": "^6.0.3",
-	"@types/react": "^18.2.31",
-	"@types/react-dom": "^18.2.13",
-	"@types/request": "^2.48.11",
-	"@types/shuffle-seed": "^1.1.1",
-	"@types/window-or-global": "^1.0.4",
-	"@typescript-eslint/eslint-plugin": "^6.8.0",
-	"@typescript-eslint/parser": "^6.8.0",
+	"@types/offscreencanvas": "^2019.7.3",
+	"@types/pixelmatch": "^5.2.5",
+	"@types/pngjs": "^6.0.4",
+	"@types/react": "^18.2.35",
+	"@types/react-dom": "^18.2.14",
+	"@types/request": "^2.48.12",
+	"@types/shuffle-seed": "^1.1.2",
+	"@types/window-or-global": "^1.0.6",
+	"@typescript-eslint/eslint-plugin": "^6.10.0",
+	"@typescript-eslint/parser": "^6.10.0",
 	address: "^2.0.1",
 	benchmark: "^2.1.4",
 	canvas: "^2.11.2",
 	cssnano: "^6.0.1",
 	d3: "^7.8.5",
 	"d3-queue": "^3.0.7",
-	"devtools-protocol": "^0.0.1212569",
+	"devtools-protocol": "^0.0.1219864",
 	diff: "^5.1.0",
-	"dts-bundle-generator": "^8.0.1",
-	eslint: "^8.52.0",
+	"dts-bundle-generator": "^8.1.2",
+	eslint: "^8.53.0",
 	"eslint-config-mourner": "^3.0.0",
 	"eslint-plugin-html": "^7.1.0",
-	"eslint-plugin-import": "^2.28.1",
-	"eslint-plugin-jest": "^27.4.3",
+	"eslint-plugin-import": "^2.29.0",
+	"eslint-plugin-jest": "^27.6.0",
 	"eslint-plugin-react": "^7.33.2",
 	"eslint-plugin-tsdoc": "0.2.17",
 	expect: "^29.7.0",
@@ -34794,10 +34794,10 @@ var devDependencies = {
 	"postcss-cli": "^10.1.0",
 	"postcss-inline-svg": "^6.0.0",
 	"pretty-bytes": "^6.1.1",
-	puppeteer: "^21.3.8",
+	puppeteer: "^21.5.1",
 	react: "^18.2.0",
 	"react-dom": "^18.2.0",
-	rollup: "^4.1.4",
+	rollup: "^4.4.0",
 	"rollup-plugin-sourcemaps": "^0.6.3",
 	rw: "^1.3.3",
 	semver: "^7.5.4",
@@ -34809,8 +34809,8 @@ var devDependencies = {
 	"ts-jest": "^29.1.1",
 	"ts-node": "^10.9.1",
 	tslib: "^2.6.2",
-	typedoc: "^0.25.2",
-	"typedoc-plugin-markdown": "^3.16.0",
+	typedoc: "^0.25.3",
+	"typedoc-plugin-markdown": "^3.17.1",
 	"typedoc-plugin-missing-exports": "^2.1.0",
 	typescript: "^5.2.2"
 };
@@ -42882,7 +42882,15 @@ class Style extends performance.Evented {
         return this._layers[id];
     }
     /**
-     * checks if a specific layer is present within the style.
+     * Return the ids of all layers currently in the style, including custom layers, in order.
+     *
+     * @returns ids of layers, in order
+     */
+    getLayersOrder() {
+        return [...this._order];
+    }
+    /**
+     * Checks if a specific layer is present within the style.
      *
      * @param id - the id of the desired layer
      * @returns a boolean specifying if the given layer is present
@@ -50888,7 +50896,8 @@ class Camera extends performance.Evented {
         this._renderFrameCallback = () => {
             const t = Math.min((performance.browser.now() - this._easeStart) / this._easeOptions.duration, 1);
             this._onEaseFrame(this._easeOptions.easing(t));
-            if (t < 1) {
+            // if _stop is called during _onEaseFrame from _fireMoveEvents we should avoid a new _requestRenderFrame, checking it by ensuring _easeFrameId was not deleted
+            if (t < 1 && this._easeFrameId) {
                 this._easeFrameId = this._requestRenderFrame(this._renderFrameCallback);
             }
             else {
@@ -54593,6 +54602,19 @@ let Map$1 = class Map extends Camera {
      */
     getLayer(id) {
         return this.style.getLayer(id);
+    }
+    /**
+     * Return the ids of all layers currently in the style, including custom layers, in order.
+     *
+     * @returns ids of layers, in order
+     *
+     * @example
+     * ```ts
+     * const orderedLayerIds = map.getLayersOrder();
+     * ```
+     */
+    getLayersOrder() {
+        return this.style.getLayersOrder();
     }
     /**
      * Sets the zoom extent for the specified style layer. The zoom extent includes the
