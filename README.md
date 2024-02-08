@@ -1,11 +1,14 @@
-# rpi-edgemap (initramfs)
+# rpi-edgemap (initramfs, meshtastic)
 
 External tree for [buildroot](https://buildroot.org) to build RaspberryPi4 based [Edgemap](https://resilience-theatre.com/edgemap/) firmware image. 
 
+![meshtastic](https://github.com/resiliencetheatre/rpiedgemap/blob/meshtastic/doc/meshtastic-kit.png?raw=true)
+
 ## Features
 
-This branch contains edgeUI for browser based mapping with [Protomaps](https://protomaps.com/). 
-
+This branch contains edgeUI for browser based mapping with [Protomaps](https://protomaps.com/) and message delivery 
+over [Meshtastic](https://meshtastic.org/) radios. Setup is tested with [LILYGO LoRa32 V2.1_1.6 radios](https://www.lilygo.cc/products/lora3).
+ 
 Branch is stripped down version of [Edgemap](https://resilience-theatre.com/edgemap/) firmware image for
 [Raspberry Pi4](https://en.wikipedia.org/wiki/Raspberry_Pi) and does not need tileserver-gl to serve 
 mbtiles. All maps are pmtiles handled by [maplibre-gl-js](https://github.com/maplibre/maplibre-gl-js) library.
@@ -23,11 +26,24 @@ Since we aim to use RPi4 in headless configuration we use [systemd-cryptsetup](h
 with [FIDO2](https://shop.nitrokey.com/shop/product/nkfi2-nitrokey-fido2-55) key. With this approach we can start unit to fully operational state with FIDO2
 key plugged in to USB port and after unit is booted (and LUKS partitions are opened) - we can remove FIDO2 key. 
 
-Browser usable user interface allows wide range of end user devices (EUD's) without any additional software installs. 
+Browser usable user interface allows wide range of end user devices (EUD's) without any additional software installs. Check out [edgemap-ui](https://github.com/resiliencetheatre/edgemap-ui) repository
+for more details how Edgemap can be integrated to various systems.
 
 This version does NOT have high rate target, simulations, CoT reading and [AN/PRC-169](https://silvustechnologies.com/) support. 
 
-If you choose to use browser based geolocation, configure installation to use TLS connection.
+If you choose to use browser based geolocation, configure installation to use TLS connection. 
+
+## Meshtastic
+
+Meshtastic implementation is still highly experimental and contains only message delivery over meshtastic radios. Following
+picture gives overview how FIFO pipes are used to deliver payload to/from radios.
+
+![meshtastic](https://github.com/resiliencetheatre/rpiedgemap/blob/meshtastic/doc/meshtastic.png?raw=true)
+
+This meshtasic branch is configured to use second partition for maps, elevation model and imagery without encryption. And some of messaging 
+channel functions have been commented out on UI code. We don't deliver 'drag marker' or 'geolocation' over meshtastic and we have increased
+presence indication sending interval to 2 minute.
+
 
 ## Building
 
@@ -42,19 +58,21 @@ git clone https://git.buildroot.net/buildroot
 git clone https://github.com/resiliencetheatre/rpiedgemap
 ```
 
-Checkout '2023.08.3' for buildroot:
+Checkout meshtastic branch on from rpiedgemap:
 
 ```
-cd ~/build-directory/buildroot
-git checkout 2023.08.3
+cd ~/build-directory/rpiedgemap
+git checkout meshtastic
 ```
+
+Current build uses master branch of buildroot. Build is tested with 3d8e0a263f277ca113b78b1f283292c418528c11.
 
 Modify `rpi-firmware` package file and change firmware version tag to
-match kernel version (6.7.0-rc3-v8) we're using. 
+match kernel version (6.1.74) we're using. 
 
 ```
 # package/rpi-firmware/rpi-firmware.mk
-RPI_FIRMWARE_VERSION = 5ffb2e29c0e14dede001447a6977e126e950cf3e
+RPI_FIRMWARE_VERSION = 3f20b832b27cd730deb6419b570f31a98167eef6
 ```
 
 Disable hash check by deleting hash file:
@@ -90,7 +108,7 @@ Use 'dd' to copy this image to your MicroSD card.
 
 ## Configuration
 
-After you initial boot completes insert your FIDO2 key and run `create-partition.sh` script to partition remaining space on your MicroSD card. 
+By default meshtastic branch works without FIDO2 enabled encryption, use `create-partition-noenc.sh` script to partition remaining space on your MicroSD card.
 
 Place pmtiles to your MicroSD second partition and link them under /opt/edgemap/edgeui/ on running instance. Modify also styles/style.json to 
 match amount of sources available.
@@ -98,6 +116,3 @@ match amount of sources available.
 ## Map data
 
 You need to have full [planet OSM](https://maps.protomaps.com/builds/) pmtiles and A global terrain RGB dataset from [Mapzen Joerd](https://github.com/tilezen/joerd) project.
-
-
-

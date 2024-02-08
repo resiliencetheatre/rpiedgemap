@@ -1053,13 +1053,15 @@ function isHidden(el) {
 function onDrag() {
     const lngLat = dragMarker.getLngLat();
     var dragLocationPayload = callSign + `|dragMarker|${lngLat.lng},${lngLat.lat}|dragged` + '\n';
-    msgSocket.send( dragLocationPayload ); 
+    // NOTE: On meshtastic branch, we disable drag delivery over messaging channel
+    // msgSocket.send( dragLocationPayload ); 
 }
     
 function onDragEnd() {
     const lngLat = dragMarker.getLngLat();
     var dragLocationPayload = callSign + `|dragMarker|${lngLat.lng},${lngLat.lat}|released` + '\n';
-    msgSocket.send( dragLocationPayload );
+    // NOTE: On meshtastic branch, we disable drag delivery over messaging channel
+    // msgSocket.send( dragLocationPayload );
 }
 
 //

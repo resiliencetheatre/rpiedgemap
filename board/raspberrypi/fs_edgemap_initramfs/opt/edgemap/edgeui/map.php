@@ -782,14 +782,16 @@
 
 
     //
-    // Periodic send my presence
+    // Periodic send my presence 
+    //
+    // NOTE: On meshtastich we use 120 s as interval
     // 
     window.setInterval(function () {
         if ( mapLoaded ) {
             checkPeerExpiry();
-            sendMessage ( callSign + `|joinMessage||periodic update` + '\n' );        
+            sendMessage ( callSign + `|joinMessage||periodic update` + '\n' );
         }
-    }, 10000 );
+    }, 120000 );
 
     //
     // Interval loading function for geojson
@@ -797,11 +799,11 @@
     var mapLoaded = false;
     var request = new XMLHttpRequest();
     window.setInterval(function () {
-        
+
         if ( geoJsonLayerActive && mapLoaded ) {
-                        
-            // 
-            // Get geojson 
+
+            //
+            // Get geojson
             // NOTE: You need cotsim -> curlcot -> taky for this to work
             //
             request.open('GET', geojsonUrl, true);
@@ -931,7 +933,8 @@
     geolocate.on('trackuserlocationend', function() {
         document.getElementById('trackingIndicator').style="display:none;"; 
         document.getElementById('gpsStatus').innerHTML = "";      
-        sendMessage( callSign + `|trackMarker|${lastKnownCoordinates.longitude},${lastKnownCoordinates.latitude}|Stopped` + '\n' );
+        // NOTE: On meshtastic branch we disable sending geolocation. Bandwidth issue.
+        // sendMessage( callSign + `|trackMarker|${lastKnownCoordinates.longitude},${lastKnownCoordinates.latitude}|Stopped` + '\n' );
     });
 
     // Call back for position updates, fire 'trackMarker' message from these
@@ -945,7 +948,8 @@
         formInfo.lon.value = `${crd.longitude}`;
         document.getElementById('gpsStatus').innerHTML = "GPS";
         // Create & send trackMarker message when geolocate is active
-        sendMessage ( callSign + `|trackMarker|${crd.longitude},${crd.latitude}|tracking` + '\n' );
+        // NOTE: On meshtastic branch we have disabled geolocation send to other memebers. Bandwidth issue.
+        // sendMessage ( callSign + `|trackMarker|${crd.longitude},${crd.latitude}|tracking` + '\n' );
     });
 
     // Sprite loading request transform, see styles/style.json
