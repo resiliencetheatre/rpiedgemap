@@ -65,14 +65,14 @@ cd ~/build-directory/rpiedgemap
 git checkout meshtastic
 ```
 
-Current build uses master branch of buildroot. Build is tested with 3d8e0a263f277ca113b78b1f283292c418528c11.
+Current build uses master branch of buildroot. Build is tested with f2846f8fea5ff8798047266f346762a7671d6b32.
 
 Modify `rpi-firmware` package file and change firmware version tag to
-match kernel version (6.1.74) we're using. 
+match kernel version (6.6.22) we're using. 
 
 ```
 # package/rpi-firmware/rpi-firmware.mk
-RPI_FIRMWARE_VERSION = 3f20b832b27cd730deb6419b570f31a98167eef6
+RPI_FIRMWARE_VERSION = 40ac9ca411ba2a0947061712a379a43579a33c0c
 ```
 
 Disable hash check by deleting hash file:
