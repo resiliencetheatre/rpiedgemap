@@ -116,3 +116,30 @@ match amount of sources available.
 ## Map data
 
 You need to have full [planet OSM](https://maps.protomaps.com/builds/) pmtiles and A global terrain RGB dataset from [Mapzen Joerd](https://github.com/tilezen/joerd) project.
+
+## Local GPS
+
+Meshtastic branch has [gpsd ](https://gpsd.io/) package which can read your locally attached GPS receiver(s) and expose
+location information to localhost socket. There is also (gpsreader)[https://github.com/resiliencetheatre/gpsreader] as
+buildroot package and it's used to read gpsd socket and output location string to fifo file. This fifo is delivered to 
+map UI via websocket. 
+
+Locally connected GPS is good companion for Edgemap with Meshtastic radios. Typically browser based geolocation (also present 
+in edgemap UI) requires TLS connection between EUD (client) and edgemap (server). Since TLS connection requires complex and
+meta data enriched certificates to be present and real time (difficult to obtain in battle space) we offer edgemap UI without
+TLS to local network connected EUD's. Browser geolocation requires also Cell, Wifi and BT to be active (stupidity in battle space) for optimum results.
+
+You can configure GPS serial port:
+
+```
+# /etc/default/gpsd
+DEVICES="/dev/ttyUSB1"
+```
+
+You can modify this file before build at external directory:
+
+```
+board/raspberrypi/fs_edgemap_initramfs/etc/default/gpsd
+```
+
+Daemon (gpsd) and 'gpsreader' is started automatically after you plug GPS in USB port.
