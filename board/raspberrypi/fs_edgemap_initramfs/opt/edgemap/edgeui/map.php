@@ -72,7 +72,13 @@
                     <span class="tooltiptext">Highrate socket connected</span>
                 </div>
             </td>
-            <td width=80% >
+            <td width=5% >
+                <div class="tooltip"> 
+                    <i id="gpsSocketStatus" style="display: none; "  class="feather-small" data-feather="navigation" ></i>
+                    <span class="tooltiptext">Local GPS connected</span>
+                </div>
+            </td>
+            <td width=40% >
                 <center>
                 <div class="tooltip">
                     <span id="callSignDisplay" style="padding-right: 5px;" ></span> 
@@ -80,6 +86,16 @@
                 </div>
                 </center>
             </td>
+            
+            <td width=40% >
+                <center>
+                <div class="tooltip">
+                    <span id="gpsDisplay" style="padding-right: 5px; " onClick="sendMyGpsLocation();"></span> 
+                    <span class="tooltiptext">Local GPS data</span>
+                </div>
+                </center>
+            </td>
+            
             <td width=10%>
                 <div class="tooltipright"> 
                     <i id="trackingIndicator" style="display: none;"  class="feather-small" data-feather="send" ></i>
@@ -318,6 +334,10 @@
     <div id="lat_highrate" style="display: none;"></div>
     <div id="lon_highrate" style="display: none;"></div>
     <div id="name_highrate" style="display: none;"></div>
+    <div id="lat_localgps" style="display: none;"></div>
+    <div id="lon_localgps" style="display: none;"></div>
+    <div id="speed_localgps" style="display: none;"></div>
+    <div id="mode_localgps" style="display: none;"></div>
 <script>
     
 /*
@@ -368,7 +388,7 @@
       style: "styles/style.json"
     });
     
-    const edgemapUiVersion = "v0.5";
+    const edgemapUiVersion = "v0.6";
     var intialZoomLevel=1;
 	var symbolSize = 30;
     
@@ -422,6 +442,22 @@
                 padding: 5
                 });
     var milSymHighrateMarker = milSymbolHighrate.asDOM();
+    
+    // localGpsMarker (development) aku
+    var localGpsMarker;
+	var localGpsMarkerCreated=false;
+    var milSymbolLocalGps = new ms.Symbol("SFGPUCR-----", { size:20,
+                dtg: "",
+                staffComments: "Local GPS".toUpperCase(),
+                additionalInformation: "1 Hz".toUpperCase(),
+                combatEffectiveness: "".toUpperCase(),
+                type: "",
+                padding: 5
+                });
+    var milSymbolLocalGpsMarker = milSymbolLocalGps.asDOM();
+    
+    // Local GPS fix status
+    var localGpsFixStatus = 0;
 
     // Geolocate to trackMessage markers
     const trackMessageMarkers = []; 
@@ -458,8 +494,10 @@
     //
     var msgSocket;
     var highrateSocket;
+    var gpsSocket;
     var msgSocketConnected=false;
     var highrateSocketConnected=false;
+    var gpsSocketConnected=false;
     var wsProtocol = null;
     if(window.location.protocol === 'http:')
             wsProtocol = "ws://";
@@ -467,7 +505,44 @@
             wsProtocol = "wss://";
     var wsHost = location.host;
 
-    // Websocket for highrate 
+    // Websocket for locally attached GPS
+    gpsSocket = new WebSocket(wsProtocol+wsHost+':7790');
+    gpsSocket.onopen = function(event) {
+        document.getElementById('gpsSocketStatus').style="display:block;";
+        gpsSocketConnected = true;
+    };    
+    gpsSocket.onmessage = function(event) {
+			var incomingMessage = event.data;
+			var trimmedString = incomingMessage.substring(0, 80);
+            const localGpsArray = trimmedString.split(",");
+            var displayString = "GPS: " + localGpsArray[0]; // + " " + localGpsArray[4] + "," + localGpsArray[5];
+            document.getElementById("gpsDisplay").innerHTML = displayString;            
+            if ( localGpsArray[1] == "0" || localGpsArray[1] == "1" ) {
+                localGpsFixStatus = 0;
+            }            
+            if ( localGpsArray[1] == "2" || localGpsArray[1] == "3" ) {
+                localGpsFixStatus = 1;
+                // Update location only on valid fix
+                $('#lat_localgps').innerHTML =  localGpsArray[5];
+                $('#lon_localgps').innerHTML =  localGpsArray[4];
+                $('#speed_localgps').innerHTML =  localGpsArray[6]; 
+                $('#mode_localgps').innerHTML =  localGpsArray[0];
+            }
+            // Create marker when we have first valid fix from GPS
+			if ( localGpsMarkerCreated == false && localGpsFixStatus == 1 ) {
+                localGpsMarker = new maplibregl.Marker({
+                    element: milSymbolLocalGpsMarker
+				});
+				requestAnimationFrame(animateLocalGpsMarker);
+                localGpsMarkerCreated = true;
+			}
+    };
+    gpsSocket.onclose = function(event) {
+        document.getElementById('gpsSocketStatus').style="display:none;";
+        gpsSocketConnected=false;
+    };
+
+    // Websocket for highrate marker 
     highrateSocket = new WebSocket(wsProtocol+wsHost+':7890');
     highrateSocket.onopen = function(event) {
         document.getElementById('highRateSocketStatus').style="display:block;";
@@ -782,14 +857,16 @@
 
 
     //
-    // Periodic send my presence 
-    //
+    // Periodic send my presence and if GPS is active and fix is valid, send location as well.
     // NOTE: On meshtastich we use 120 s as interval
     // 
     window.setInterval(function () {
         if ( mapLoaded ) {
             checkPeerExpiry();
             sendMessage ( callSign + `|joinMessage||periodic update` + '\n' );
+            if ( gpsSocketConnected && localGpsFixStatus == 1 ) {
+                sendMyGpsLocation(); 
+            }
         }
     }, 120000 );
 
@@ -850,7 +927,7 @@
                 };
             request.send();
         } else {
-            console.log("Map not loaded yet or geoJsonLayer is false");
+            // console.log("Map not loaded yet or geoJsonLayer is false");
         }
     }, 4000 );
     

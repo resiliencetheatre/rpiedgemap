@@ -425,8 +425,39 @@ function parse_query_string(query) {
   }
   return query_string;
 }
+
+// Local GPS marker animation
+function animateLocalGpsMarker(timestamp) {		
+    localGpsMarker.remove();
+    var lat = document.getElementById('lat_localgps').innerHTML;
+    var lon = document.getElementById('lon_localgps').innerHTML; 
+    var mode = document.getElementById('mode_localgps').innerHTML;
+    var speed = document.getElementById('speed_localgps').innerHTML;
+    var localGpsName = "Local GPS"; 
+    var locationComment = speed + " km/h";
+    milSymbolLocalGps.setOptions({ staffComments: locationComment });
+    milSymbolLocalGps.setOptions({ commonIdentifier: "" });
+    milSymbolLocalGps.setOptions({ type: localGpsName });
+    milSymbolLocalGpsMarker = milSymbolLocalGps.asDOM(); 
+    localGpsMarker = new maplibregl.Marker({
+            element: milSymbolLocalGpsMarker
+        });
+    localGpsMarker.setLngLat([lat,lon]);
+    localGpsMarker.addTo(map);
+    requestAnimationFrame(animateLocalGpsMarker);
+} 
+
+// Send my GPS provided location over meshtastic msg channel when
+// coordinates are clicked on top bar. 
+function sendMyGpsLocation() {
+    var lat = document.getElementById('lat_localgps').innerHTML;
+    var lon = document.getElementById('lon_localgps').innerHTML; 
+    sendMessage ( callSign + `|trackMarker|` + lat + `,` + lon + `|GPS-snapshot` + '\n' );
+    notifyMessage("Local GPS position sent as track marker", 5000);
+}
+
 //
-// Highrate marker animation function
+// Highrate marker animation
 //
 function animateHighrateMarker(timestamp) {		
         // Experimental version
@@ -439,7 +470,7 @@ function animateHighrateMarker(timestamp) {
             milSymbolHighrate.setOptions({ staffComments: locationComment });
             milSymbolHighrate.setOptions({ type: highrateName });
             
-            milSymHighrateMarker = milSymbolHighrate.asDOM();
+            milSymHighrateMarker = milSymbolHighrate.asDOM(); 
             highrateMarker = new maplibregl.Marker({
                     element: milSymHighrateMarker
 				});
