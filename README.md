@@ -120,7 +120,7 @@ You need to have full [planet OSM](https://maps.protomaps.com/builds/) pmtiles a
 ## Local GPS
 
 Meshtastic branch has [gpsd ](https://gpsd.io/) package which can read your locally attached GPS receiver(s) and expose
-location information to localhost socket. There is also (gpsreader)[https://github.com/resiliencetheatre/gpsreader] as
+location information to localhost socket. There is also [gpsreader](https://github.com/resiliencetheatre/gpsreader) as
 buildroot package and it's used to read gpsd socket and output location string to fifo file. This fifo is delivered to 
 map UI via websocket. 
 
