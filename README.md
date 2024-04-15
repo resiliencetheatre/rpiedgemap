@@ -65,14 +65,14 @@ cd ~/build-directory/rpiedgemap
 git checkout meshtastic
 ```
 
-Current build uses master branch of buildroot. Build is tested with f2846f8fea5ff8798047266f346762a7671d6b32.
+Current build uses master branch of buildroot. Build is tested with 87943b75310190db05342232046790db0f8e4232.
 
 Modify `rpi-firmware` package file and change firmware version tag to
-match kernel version (6.6.22) we're using. 
+match kernel version (6.6.26) we're using. 
 
 ```
 # package/rpi-firmware/rpi-firmware.mk
-RPI_FIRMWARE_VERSION = 40ac9ca411ba2a0947061712a379a43579a33c0c
+RPI_FIRMWARE_VERSION = 45319db29eb5e4f67feab5c4194bc1f28c574ed0
 ```
 
 Disable hash check by deleting hash file:
@@ -141,5 +141,7 @@ You can modify this file before build at external directory:
 ```
 board/raspberrypi/fs_edgemap_initramfs/etc/default/gpsd
 ```
+
+You could also use 'bootstrap.sh' to replace that file and restart service, 'bootstrap.sh' is run on boot from boot partition.
 
 Daemon (gpsd) and 'gpsreader' is started automatically after you plug GPS in USB port.
