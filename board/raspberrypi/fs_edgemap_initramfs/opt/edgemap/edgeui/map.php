@@ -6,8 +6,8 @@
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="js/maplibre-gl.js"></script>
     <link href="js/maplibre-gl.css" rel="stylesheet" />
-    <script src="protomaps-js/index.js"></script>
-    <script src="js/milsymbol.js"></script>    
+    <script src="protomaps-js/pmtiles.js"></script>
+    <script src="js/milsymbol.js"></script>
     <script src="js/feather.js"></script>
     <script src="js/edgemap.js"></script>
     <link href="css/edgemap.css" rel="stylesheet" />

@@ -1,4 +1,4 @@
-import { Source, Header, Cache, RangeResponse } from "./index";
+import { Cache, Header, RangeResponse, Source } from "./index";
 export declare const shift: (n: number, shift: number) => number;
 export declare const unshift: (n: number, shift: number) => number;
 export declare const getUint24: (view: DataView, pos: number) => number;
@@ -14,7 +14,7 @@ export interface EntryV2 {
     y: number;
     offset: number;
     length: number;
-    is_dir: boolean;
+    isDir: boolean;
 }
 export declare const queryLeafdir: (view: DataView, z: number, x: number, y: number) => EntryV2 | null;
 export declare const queryTile: (view: DataView, z: number, x: number, y: number) => {
@@ -23,7 +23,7 @@ export declare const queryTile: (view: DataView, z: number, x: number, y: number
     y: number;
     offset: number;
     length: number;
-    is_dir: boolean;
+    isDir: boolean;
 } | null;
 export declare const parseEntry: (dataview: DataView, i: number) => EntryV2;
 export declare const sortDir: (a: ArrayBuffer) => ArrayBuffer;
