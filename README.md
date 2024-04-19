@@ -2,6 +2,11 @@
 
 External tree for [buildroot](https://buildroot.org) to build RaspberryPi4 based [Edgemap](https://resilience-theatre.com/edgemap/) firmware image. 
 
+## Latest version
+
+Latest development happens currently in [meshtastic-maplibre4 branch](https://github.com/resiliencetheatre/rpiedgemap/tree/meshtastic-maplibre4) and until that is merged, you most
+probably want to keep eye and use that branch. It contains Meshtastic radio support and latest maplibre-gl-js.
+
 ## Features
 
 This branch contains edgeUI for browser based mapping with [Protomaps](https://protomaps.com/). 
