@@ -730,7 +730,7 @@ input:focus {
   text-align: center;
   padding: 5px 0;
   border-radius: 6px;
- 
+  display: inline-block;
   /* Position the tooltip text - see examples below! */
   position: absolute;
   z-index: 1;
@@ -926,7 +926,7 @@ input:focus {
 	position: absolute;
 	width: 35px;
 	border-radius: 5px;
-	top: 370px;
+	top: 360px;
 	right: 2px;
 	padding: 5px;
 	opacity: 1.0;
@@ -941,6 +941,30 @@ input:focus {
 	padding: 5px;
 	border-radius: 5px;	
 }
+
+.map-right-meshtastic-button {
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	position: absolute;
+	width: 35px;
+	border-radius: 5px;
+	top: 400px;
+	right: 2px;
+	padding: 5px;
+	opacity: 1.0;
+}
+
+.map-right-meshtastic-button .map-right-meshtastic-button-inner {
+	background-color: #333;
+	color: #0f0;
+	margin-top: 5px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+	border-radius: 3px;
+	padding: 5px;
+	border-radius: 5px;	
+}
+
+
+
 
 /* bottom: 140px; */
 .peerlistblock {
@@ -957,9 +981,35 @@ input:focus {
 	opacity: 0.6;
 }
 
+.radiolistblock {
+    font: 12px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: #0F0;
+	position: absolute;
+	border-radius: 5px;
+    width: 300px;
+    height: 150px;
+	bottom: 50px;
+    left: 10px;
+	padding: 5px;
+	opacity: 0.6;
+}
+.toprightlogoradiolistblock {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
 
-
-
+.buttonNotifyDot {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  height: 8px;
+  width: 8px;
+  background-color: #F00;
+  border-radius: 50%;
+  display: inline-block;
+}
 
 
 

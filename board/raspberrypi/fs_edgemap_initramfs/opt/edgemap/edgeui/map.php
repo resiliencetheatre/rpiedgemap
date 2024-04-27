@@ -72,12 +72,22 @@
                     <span class="tooltiptext">Highrate socket connected</span>
                 </div>
             </td>
+
             <td width=5% >
                 <div class="tooltip"> 
                     <i id="gpsSocketStatus" style="display: none; "  class="feather-small" data-feather="navigation" ></i>
                     <span class="tooltiptext">Local GPS connected</span>
                 </div>
             </td>
+
+            <td width=2% >
+                <div class="tooltip"> 
+                    <i id="meshtasticStatus" style="display: none; "  class="feather-small" data-feather="link" ></i>
+                    <span id="meshtasticStatusToolTip" class="tooltiptext" >Meshtastic daemon connected</span>
+                </div>
+            </td>            
+            
+            
             <td width=40% >
                 <center>
                 <div class="tooltip">
@@ -95,6 +105,8 @@
                 </div>
                 </center>
             </td>
+            
+            
             
             <td width=10%>
                 <div class="tooltipright"> 
@@ -319,7 +331,7 @@
     </table>
     </div>
     
-    <div class="map-right-userlist-button" id="userlistbutton">
+    <div class="map-right-userlist-button" id="userlistbutton" >
     <div class="map-right-userlist-button-inner">
         <center>
             <i data-feather="users" class="feather-normal" onClick="toggleUserList();"></i>
@@ -327,8 +339,23 @@
     </div>
     </div>
     
+    <div class="map-right-meshtastic-button" id="meshtasticButton" style="display: none;">
+    <div class="map-right-meshtastic-button-inner">
+        <div id="radioNotifyDot" class="buttonNotifyDot"></div>
+        <center>
+            <i data-feather="link" class="feather-normal" onClick="toggleRadioList();"></i>
+        </center>
+    </div>
+    </div>
+    
     <div class="peerlistblock" id="peerlistblock" style="display: none;">
         <div id="peerlist"></div>
+    </div>
+    
+    <div class="radiolistblock" id="radiolistblock" style="display: none;">
+        <div id="logo" class="toprightlogoradiolistblock"><img src="img/meshtastic-logo.png" width=20px; ></img></div>
+        <div id="radiolist"></div>
+        
     </div>
     
     <div id="lat_highrate" style="display: none;"></div>
@@ -468,6 +495,12 @@
     //
     let peersOnMap = new peerList;
     
+    // We track 'radios' on mesh - not their location on map.
+    // Since we don't want to enforce or use meshtastic internal
+    // positioning reports (or capability to use GPS) since it's an OPSEC
+    // issue.
+    let radiosOnSystem = new radioList;
+    
     // Milsymbol for trackMessage
     const trackMessageMarkerGraph = new ms.Symbol("SFGPUCR-----", { size:20,
                 dtg: "",
@@ -542,19 +575,52 @@
         gpsSocketConnected=false;
     };
 
-    // Websocket for highrate marker 
+    // Websocket for highrate marker 7890
     highrateSocket = new WebSocket(wsProtocol+wsHost+':7890');
     highrateSocket.onopen = function(event) {
         document.getElementById('highRateSocketStatus').style="display:block;";
         msgSocketConnected = true;
     };
     
-    // Websocket for messaging
+    // Websocket for messaging 7990
     msgSocket = new WebSocket(wsProtocol+wsHost+':7990');
     msgSocket.onopen = function(event) {
         document.getElementById('msgSocketStatus').style="display:block;"; 
         highrateSocketConnected = true;
     };
+    
+    // Websocket for 'status' from meshpipe 7995
+    meshtasticStatusSocket = new WebSocket(wsProtocol+wsHost+':7995');
+    meshtasticStatusSocket.onopen = function(event) {
+        document.getElementById('meshtasticStatus').style="display:block;"; 
+        document.getElementById('meshtasticButton').style="display:block;";
+        fadeOut(radioNotifyDotDiv,50);
+    };
+    
+    meshtasticStatusSocket.onmessage = function(event) {
+        var incomingMessage = event.data;
+        var trimmedString = incomingMessage.substring(0, 80);
+        const nodeArray = trimmedString.split(",");
+        if ( nodeArray[0] === "mynode" )
+        {
+            document.getElementById('meshtasticStatusToolTip').textContent = "My node: " + nodeArray[1];
+            document.getElementById('meshtasticButton').style="display:block;"; 
+        }
+        if ( nodeArray[0] === "peernode" )
+        {
+            radiosOnSystem.add( nodeArray[1], Math.round(+new Date()/1000),nodeArray[2],nodeArray[3],nodeArray[4],nodeArray[5],nodeArray[6] );
+            updateRadioListBlock(); 
+        }
+        fadeIn(radioNotifyDotDiv,200);
+        if ( ! isHidden(radiolistblockDiv) ) {
+            fadeOut(radioNotifyDotDiv,10000);
+        }
+    };
+    
+    meshtasticStatusSocket.onclose = function(event) {
+        document.getElementById('meshtasticStatus').style="display:none;";
+    };
+    
     
     highrateSocket.onmessage = function(event) {
 			var incomingMessage = event.data;
@@ -596,6 +662,12 @@
             const msgLocation =  msgArray[2];
             const msgMessage =  msgArray[3];
             
+            // 
+            // meshpipe join (from meshtastic network)
+            //
+            if ( msgType === "meshpipe" ) {
+               notifyMessage( "Node start: " + msgMessage, 5000);                   
+            }
             
             //
             // Join message demo
@@ -792,7 +864,10 @@
     const coordinateEntryBoxDiv =  document.getElementById("coordinateSearchEntry");
     const languageSelectDialogDiv =  document.getElementById("languageSelectDialog");     
     const peerlistblockDiv =  document.getElementById("peerlistblock"); 
+    const radiolistblockDiv =  document.getElementById("radiolistblock");
     const userlistbuttonDiv = document.getElementById("userlistbutton");   
+    const radiolistbuttonDiv = document.getElementById("meshtasticButton");
+    const radioNotifyDotDiv = document.getElementById("radioNotifyDot"); 
     
     //
     // Set rtl text plugin and pmtiles protocol
@@ -863,12 +938,17 @@
     window.setInterval(function () {
         if ( mapLoaded ) {
             checkPeerExpiry();
+            checkRadioExpiry();
             sendMessage ( callSign + `|joinMessage||periodic update` + '\n' );
             if ( gpsSocketConnected && localGpsFixStatus == 1 ) {
                 sendMyGpsLocation(); 
             }
         }
     }, 120000 );
+    
+    window.setInterval(function () {
+        updateRadioListBlock();
+    }, 30000 );
 
     //
     // Interval loading function for geojson
@@ -1078,8 +1158,15 @@
 
     document.addEventListener("keyup", function(event) {
         const key = event.key;
+        // Messaging
         if (key === "m") {
            if ( isHidden(logDiv) ) openMessageEntryBox();
+        }
+        // Radio list
+        if (key === "r") {
+           if ( isHidden(radiolistblockDiv) || isHidden(logDiv) ) {
+               openRadioList();
+           }
         }
         // Enable map features debugging if needed
          if (key === "D") {
@@ -1106,6 +1193,8 @@
             if ( !isHidden(coordinateEntryBoxDiv) ) closeCoordinateSearchEntryBox();
             if ( !isHidden(languageSelectDialogDiv) ) closeLanguageSelectBox();
             if ( !isHidden(logDiv) ) closeMessageEntryBox();
+            if ( !isHidden(radiolistblockDiv) ) closeRadioList();
+            
         }
         if (key === "h") {
             if ( isHidden(logDiv) ) {

@@ -68,6 +68,99 @@ class peerList {
         }
 }
 
+// Meshtastic radio list
+class radioList {
+        constructor() {
+            this.members = [];
+            this.timestamps = [];
+            this.battery = [];
+            this.airUtilTx = [];
+            this.rxSnr = [];
+            this.hopLimit = [];
+            this.rxRssi = [];
+        }
+        add(callsign, timeStamp,DeviceBat,DeviceAirUtilTx,DeviceRxSnr,DeviceHopLimit,DeviceRxRssi) {            
+            const index = this.members.findIndex(x => x === callsign);
+            if (index !== -1) {
+                // Update existing but don't over write existing 
+                this.members[index] = callsign;
+                this.timestamps[index] = timeStamp;
+                if ( DeviceBat != "-" )
+                    this.battery[index] = DeviceBat;
+                if ( DeviceAirUtilTx != "-" )    
+                    this.airUtilTx[index] = DeviceAirUtilTx;
+                if ( DeviceRxSnr != "-" ) 
+                    this.rxSnr[index] = DeviceRxSnr;
+                if ( DeviceHopLimit != "-" ) 
+                    this.hopLimit[index] = DeviceHopLimit;
+                if ( DeviceRxRssi != "-" ) 
+                    this.rxRssi[index] = DeviceRxRssi;
+                return true;
+            } else {
+                // Add new
+                this.members.push(callsign);  
+                this.timestamps.push(timeStamp); 
+                this.battery.push(DeviceBat); 
+                this.airUtilTx.push(DeviceAirUtilTx); 
+                this.rxSnr.push(DeviceRxSnr); 
+                this.hopLimit.push(DeviceHopLimit); 
+                this.rxRssi.push(DeviceRxRssi);
+                return true;
+            }
+            return false;
+        }
+        // TODO: Not tested at all
+        remove(callsign) {
+            const index = this.members.findIndex(x => x === callsign);
+            if (index !== -1) {
+                this.members.splice(index, 1);
+                this.timestamps.splice(index, 1);
+                this.battery.splice(index, 1);
+                this.airUtilTx.splice(index, 1);
+                this.rxSnr.splice(index, 1);
+                this.hopLimit.splice(index, 1);
+                this.rxRssi.splice(index, 1);
+                return true;
+            }
+            return false;
+        }
+        present(callsign) {
+            const index = this.members.findIndex(x => x === callsign);
+            if (index !== -1) {
+                return true;
+            }
+            return false;
+        }
+        getSize() {
+            return this.members.length;
+        }
+}
+
+
+function updateRadioListBlock() {
+    document.getElementById("radiolist").innerHTML = "";
+    var radioLoop=0;
+    var radioListContent = "";
+    // List with hop limit
+    // radioListContent = "<table width=90%><tr ><td style='border-bottom: 1px solid #0F0;' >Radio</td><td style='border-bottom: 1px solid #0F0;' >Bat</td><td style='border-bottom: 1px solid #0F0;'>Air Util</td><td style='border-bottom: 1px solid #0F0;' align='center'>Hop</td><td style='border-bottom: 1px solid #0F0;' align='center'>S/N</td><td style='border-bottom: 1px solid #0F0;' align='center'>RSSI</td><td style='border-bottom: 1px solid #0F0;' align='center'>Age</td></tr>";
+    // List without hop limit
+    radioListContent = "<table width=90%><tr ><td style='border-bottom: 1px solid #0F0;' >Radio</td><td style='border-bottom: 1px solid #0F0;' >Bat</td><td style='border-bottom: 1px solid #0F0;'>Air Util</td><td style='border-bottom: 1px solid #0F0;' align='center'>S/N</td><td style='border-bottom: 1px solid #0F0;' align='center'>RSSI</td><td style='border-bottom: 1px solid #0F0;' align='center' title='Age in minutes' >Age</td></tr>";
+    for ( radioLoop = 0; radioLoop < radiosOnSystem.getSize(); radioLoop++) { 
+        // Calculate age
+        let currentTime = Math.round(+new Date()/1000);
+        var ageInSeconds = parseInt ( currentTime ) - parseInt( radiosOnSystem.timestamps[radioLoop] );
+        var age = Math.round(ageInSeconds/60);        
+        if ( age > 60 ) {
+            age = ">60";
+        }
+        // radioListContent += "<tr><td>" + radiosOnSystem.members[radioLoop] + "</td><td>" + radiosOnSystem.battery[radioLoop] + " %</td><td>" + radiosOnSystem.airUtilTx[radioLoop] + " %</td><td align='center'>" + radiosOnSystem.hopLimit[radioLoop] + "</td><td align='center'>" + radiosOnSystem.rxSnr[radioLoop] + "</td><td align='center'>" + radiosOnSystem.rxRssi[radioLoop] + "</td><td align='center'>" + age + "</td></tr>";
+        radioListContent += "<tr><td>" + radiosOnSystem.members[radioLoop] + "</td><td>" + radiosOnSystem.battery[radioLoop] + " %</td><td>" + radiosOnSystem.airUtilTx[radioLoop] + " %</td><td align='center'>" + radiosOnSystem.rxSnr[radioLoop] + "</td><td align='center'>" + radiosOnSystem.rxRssi[radioLoop] + "</td><td align='center'>" + age + "</td></tr>";
+    }
+    radioListContent += "</table>";
+    document.getElementById("radiolist").innerHTML = radioListContent;
+}
+
+
 function toggleUserList() {
     const elementOpacity=0.8;
     if( typeof toggleUserList.userListVisible == 'undefined' ) {
@@ -83,6 +176,27 @@ function toggleUserList() {
     if ( toggleUserList.userListVisible == false ) {
         fadeInTo09(peerlistblockDiv ,400,elementOpacity);
         toggleUserList.userListVisible = true;
+        return;
+    }    
+}
+
+function toggleRadioList() {
+    const elementOpacity=0.8;
+    if( typeof toggleRadioList.radioListVisible == 'undefined' ) {
+        fadeInTo09(radiolistblockDiv ,400,elementOpacity);
+        toggleRadioList.radioListVisible = true;
+        fadeOut(radioNotifyDotDiv,200);
+        return;
+    }
+    if ( toggleRadioList.radioListVisible == true ) {
+        fadeOutFrom09(radiolistblockDiv ,400,elementOpacity);
+        toggleRadioList.radioListVisible = false;
+        return;
+    }
+    if ( toggleRadioList.radioListVisible == false ) {
+        fadeInTo09(radiolistblockDiv ,400,elementOpacity);
+        toggleRadioList.radioListVisible = true;
+        fadeOut(radioNotifyDotDiv,200);
         return;
     }    
 }
@@ -104,6 +218,11 @@ function updatePeerListBlock() {
     document.getElementById("peerlist").innerHTML = peerListContent;
 }
 
+
+
+
+
+
 // Remove peers if unheard over 30 s
 function checkPeerExpiry() {
     let currentTime = Math.round(+new Date()/1000);
@@ -115,6 +234,19 @@ function checkPeerExpiry() {
         }
     }
 }
+
+// Remove radios if unheard over 300 s
+function checkRadioExpiry() {
+    let currentTime = Math.round(+new Date()/1000);
+    for ( radioLoop = 0; radioLoop < radiosOnSystem.getSize(); radioLoop++) {
+        var radioAge = parseInt ( currentTime ) - parseInt( radiosOnSystem.timestamps[peerLoop] );
+        if ( radioAge > 300 ) {
+            radiosOnSystem.remove( radiosOnSystem.members[peerLoop] );
+            updateRadioListBlock(); 
+        }
+    }
+}
+
 
 function notifyMessage(message, timeout) {
      fadeIn(document.getElementById("bottomLog") ,400);
@@ -899,7 +1031,22 @@ function closeCallSignEntryBox() {
     document.getElementById('myCallSign').value = newCallSign;
     document.getElementById('callSignDisplay').innerHTML = newCallSign;
 }
-    
+
+function openRadioList() {
+    if ( logDiv.style.display == "" || logDiv.style.display !== "inline-block"  ) {
+        if ( radiolistblockDiv.style.display !== "inline-block" ) {
+            fadeIn(radiolistblockDiv ,200);
+            fadeOut(radioNotifyDotDiv,200);
+        }
+    }
+}
+
+function closeRadioList() {
+    if (logDiv.style.display !== "inline-block" ) {
+        fadeOut(radiolistblockDiv ,200);
+    }
+}
+
 function openMessageEntryBox() {
     const canVibrate = window.navigator.vibrate
     if (canVibrate) window.navigator.vibrate(100)
@@ -912,7 +1059,10 @@ function openMessageEntryBox() {
         fadeOut(sensorDiv,200);
         fadeOut(bottomBarDiv,200);
         fadeOut(cameracontrol,200);
-        fadeOut(userlistbuttonDiv ,200); // AKU
+        fadeOut(userlistbuttonDiv ,200);
+        fadeOut(radiolistbuttonDiv ,200);
+        fadeOut(radiolistblockDiv ,200);
+         
     }
     document.getElementById("msgInput").focus();
 }
@@ -932,12 +1082,16 @@ function closeMessageEntryBox() {
         fadeIn(bottomBarDiv,200);
         fadeIn(cameracontrol,200);
         fadeIn(userlistbuttonDiv ,200);
+        fadeIn(radiolistbuttonDiv ,200);
+        
       } else {
         fadeIn(logDiv,200);
         fadeOut(zoomDiv,200);
         fadeOut(sensorDiv,200);
         fadeOut(cameracontrol,200);
         fadeOut(userlistbuttonDiv,200);
+        fadeOut(radiolistbuttonDiv ,200);
+        fadeOut(radiolistblockDiv ,200);
       }
     }
 }

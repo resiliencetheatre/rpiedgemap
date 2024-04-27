@@ -60,6 +60,12 @@ global BaseLat
 global BaseLon
 global MacAddress
 global DeviceID
+global DeviceBat
+global DeviceAirUtilTx
+global DeviceRxSnr
+global DeviceHopLimit
+global DeviceRxRssi
+
 
 def ErrorHandler(ErrorMessage,TraceMessage,AdditionalInfo):
   CallingFunction =  inspect.stack()[1][3]
@@ -83,8 +89,11 @@ def DecodePacket(PacketParent,Packet):
   global LastPacketType
   global HardwareModel
   global DeviceID 
-  
-  print('\n--- decodepacket ---')
+  global DeviceBat  
+  global DeviceAirUtilTx
+  global DeviceRxSnr
+  global DeviceHopLimit
+  global DeviceRxRssi
   
   if isinstance(Packet, collections.abc.Mapping):
 
@@ -98,7 +107,18 @@ def DecodePacket(PacketParent,Packet):
             pass
         else:
           if not isinstance(Value, bytes):
-            print("{: <20} {: <20}".format(Key,Value))
+            # print("{: <20} {: <20}".format(Key,Value))
+            if(Key=='batteryLevel'):
+                DeviceBat = Value
+            if(Key=='airUtilTx'):
+                DeviceAirUtilTx = round(Value,2)
+            if(Key=='rxSnr'):
+                DeviceRxSnr = Value
+            if(Key=='hopLimit'):
+                DeviceHopLimit = Value
+            if(Key=='rxRssi'):
+                DeviceRxRssi = Value
+           
 
   else:
       print('Warning: Not a packet!\n')
@@ -111,13 +131,51 @@ def onReceive(packet, interface):
     global PacketsReceived
     global PacketsSent
     global fifo_write
+    global DeviceBat
+    global DeviceAirUtilTx
+    global DeviceRxSnr
+    global DeviceHopLimit
+    global DeviceRxRssi
+    DeviceBat=None
+    DeviceAirUtilTx=None
+    DeviceRxSnr=None
+    DeviceHopLimit=None
+    DeviceRxRssi=None
+    
     PacketsReceived = PacketsReceived + 1
     Decoded  = packet.get('decoded')
     Message  = Decoded.get('text')
     To       = packet.get('to')
     From     = packet.get('from')
-
+    
     DecodePacket('MainPacket',packet)
+    fromIdentString= packet.get('fromId')
+    fromIdent = fromIdentString[1:]
+    
+    if(fromIdent):
+        print('** Packet from: {}'.format(fromIdent))
+        print('** battery: {}'.format(DeviceBat))
+        print('** air util: {}'.format( DeviceAirUtilTx ))
+        print('** RxSnr: {}'.format(DeviceRxSnr))
+        print('** HopLimit: {}'.format(DeviceHopLimit))
+        print('** rxRssi: {}'.format(DeviceRxRssi))
+        
+        # Update UI
+        if DeviceBat is None: 
+            DeviceBat='-'
+        if DeviceAirUtilTx is None: 
+            DeviceAirUtilTx='-'
+        if DeviceRxSnr is None: 
+            DeviceRxSnr='-'
+        if DeviceHopLimit is None: 
+            DeviceHopLimit='-'
+        if DeviceRxRssi is None: 
+            DeviceRxRssi='-'
+        
+        meshtasticmessage = "peernode," + fromIdent + "," + str(DeviceBat) + "," + str(DeviceAirUtilTx) + "," + str(DeviceRxSnr) + "," + str(DeviceHopLimit) + "," + str(DeviceRxRssi)
+        fifo_write = open('/tmp/statusin', 'w')
+        fifo_write.write(meshtasticmessage)
+        fifo_write.flush()
 
     if(Message):
         print('Incoming message:')
@@ -126,22 +184,20 @@ def onReceive(packet, interface):
         fifo_write.write(Message)
         fifo_write.flush()
 
+   
 
 def onConnectionEstablished(interface, topic=pub.AUTO_TOPIC): 
-
-    # TODO: Do we need this? 
-    From = "BaseStation"
+    
     To   = "All"
     current_time = datetime.now().strftime("%H:%M:%S")
-    Message = "meshpipe active [{}]".format(current_time)
-    print("From: {} - {}".format(From,Message,To))
+    Message = "{}|meshpipe|-|{}".format(current_time,DeviceName[1:])
 
     try:
-      interface.sendText(Message, wantAck=False)
-      print("== Packet SENT==")
-      print("To:      {}:".format(To))
-      print("From:    {}:".format(From))
-      print("Message: {}:".format(Message))
+      print("onConnectionEstablished packet disabled")
+      # interface.sendText(Message, wantAck=False)
+      # print("== Connection up packet sent ==")
+      # print("To:      {}".format(To))
+      # print("Message: {}".format(Message))
 
     except Exception as ErrorMessage:
       TraceMessage = traceback.format_exc()
@@ -151,6 +207,7 @@ def onConnectionEstablished(interface, topic=pub.AUTO_TOPIC):
 
 def onConnectionLost(interface, topic=pub.AUTO_TOPIC): 
   print('onConnectionLost \n')
+  sys.exit()
 
 def onNodeUpdated(interface, topic=pub.AUTO_TOPIC): 
   print('onNodeUpdated \n')
@@ -184,6 +241,8 @@ def send_msg_from_fifo(interface, Message):
 
 def GetMyNodeInfo(interface):
 
+    global DeviceName
+    global DeviceBat
     Distance   = 0
     DeviceName = ''
     BaseLat    = 0
@@ -200,6 +259,11 @@ def GetMyNodeInfo(interface):
 
     if 'longName' in TheNode['user']:
       print('Long name: ', TheNode['user']['longName'])
+      # Inform my node ID
+      # meshtasticmessage = 'mynode,' + TheNode['user']['longName']
+      # fifo_write = open('/tmp/statusin', 'w')
+      # fifo_write.write(meshtasticmessage)
+      # fifo_write.flush()
 
     if 'hwModel' in TheNode['user']:
       print('HW model:  ',TheNode['user']['hwModel'])
@@ -209,6 +273,7 @@ def GetMyNodeInfo(interface):
 
     if 'id' in TheNode['user']:
       print('User ID:   ',TheNode['user']['id'])
+      DeviceName = TheNode['user']['id']
 
     if 'batteryLevel' in TheNode['position']:
       print('Battery:   ',TheNode['position']['batteryLevel'])
@@ -224,6 +289,7 @@ def deg2num(lat_deg, lon_deg, zoom):
   return (xtile, ytile)
       
 # TODO: Deliver nodes to fifo or create mesh status fifo for UI?
+
 def DisplayNodes(interface):
     
     print('\n-- DisplayNodes --')
@@ -251,9 +317,15 @@ def DisplayNodes(interface):
         if 'lastHeard' in node.keys():
           LastHeardDatetime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(node['lastHeard']))
           print("LastHeard: {}".format(LastHeardDatetime))  
-
         print('-----')
-
+        
+        # Update UI
+        nodeidstring = node['user']['id']
+        nodeidstring = nodeidstring[1:]
+        meshtasticmessage = "peernode," + nodeidstring
+        fifo_write = open('/tmp/statusin', 'w')
+        fifo_write.write(meshtasticmessage)
+        fifo_write.flush()
 
     except Exception as ErrorMessage:
       TraceMessage = traceback.format_exc()
@@ -302,6 +374,9 @@ def main():
     if not os.path.exists('/tmp/msgincoming'):
         print('Missing fifo file: /tmp/msgincoming')
         sys.exit()
+    if not os.path.exists('/tmp/statusin'):
+        print('Missing fifo file: /tmp/statusin')
+        sys.exit()
     
     # Check fifo type
     if not stat.S_ISFIFO(os.stat('/tmp/msgchannel').st_mode):
@@ -310,12 +385,18 @@ def main():
     if not stat.S_ISFIFO(os.stat('/tmp/msgincoming').st_mode):
         print('/tmp/msgincoming is not fifo file, exiting...')
         sys.exit()
+    if not stat.S_ISFIFO(os.stat('/tmp/statusin').st_mode):
+        print('/tmp/statusin is not fifo file, exiting...')
+        sys.exit()
+
 
     print("Connecting to device at port {}".format(args.port))
     interface = meshtastic.serial_interface.SerialInterface(args.port)
 
     # Get node info for connected device
     GetMyNodeInfo(interface)
+    # time.sleep(2)
+    # print('*** MY NAME *** ',DeviceName)
 
     # subscribe to connection and receive channels
     pub.subscribe(onConnectionEstablished, "meshtastic.connection.established")
