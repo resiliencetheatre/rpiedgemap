@@ -129,19 +129,28 @@ in edgemap UI) requires TLS connection between EUD (client) and edgemap (server)
 meta data enriched certificates to be present and real time (difficult to obtain in battle space) we offer edgemap UI without
 TLS to local network connected EUD's. Browser geolocation requires also Cell, Wifi and BT to be active (stupidity in battle space) for optimum results.
 
-You can configure GPS serial port:
+You need to configure local GPS and meshtastic serial ports before they can be accessed by system services.
+
+Locally attached GNSS receiver serial port can be defined by placing file 'gpsd.env' to boot partition:
 
 ```
-# /etc/default/gpsd
-DEVICES="/dev/ttyUSB1"
+# Devices gpsd should collect to at boot time.
+# They need to be read/writeable, either by user gpsd or the group dialout.
+DEVICES="/dev/ttyUSB0"
+
+# Other options you want to pass to gpsd
+GPSD_OPTIONS=""
 ```
-
-You can modify this file before build at external directory:
-
-```
-board/raspberrypi/fs_edgemap_initramfs/etc/default/gpsd
-```
-
-You could also use 'bootstrap.sh' to replace that file and restart service, 'bootstrap.sh' is run on boot from boot partition.
-
 Daemon (gpsd) and 'gpsreader' is started automatically after you plug GPS in USB port.
+
+## Local Meshtastic radio
+
+Locally attached Meshtastic radio serial port can be defined by placing file 'meshtastic.env' to boot partition:
+
+```
+MESHTASTIC_PORT="/dev/ttyACM0"
+```
+
+Please note that Edgemap does not use Meshtastic local GPS capabilities for OPSEC reasons.
+
+

@@ -1,13 +1,15 @@
 [Unit]
-Description=gwsocket for status messages
+Description=gwsocket for meshtastic telemetry messages
+Before=meshpipe.service
 After=multi-user.target
+PartOf=meshpipe.service
 
 [Service]
 WorkingDirectory=/opt/edgemap
 KillMode=process
 ExecStart=gwsocket -p 7995 --pipein=/tmp/statusin
 Restart=always
-RestartSec=1
+RestartSec=5
 TimeoutStartSec=5
 
 [Install]
